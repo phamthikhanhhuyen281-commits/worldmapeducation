@@ -505,14 +505,34 @@ export default function App() {
   // Dynamic question resolving based on current activeExam with fallback to static constants
   const isCustomExam = activeExam && activeExam.id !== 'default-exam';
 
-  const listeningPart1 = isCustomExam ? (activeExam?.questions?.listeningPart1 || []) : (activeExam?.questions?.listeningPart1 || LISTENING_PART_1);
-  const listeningPart2 = isCustomExam ? (activeExam?.questions?.listeningPart2 || []) : (activeExam?.questions?.listeningPart2 || LISTENING_PART_2);
-  const speakingQuestions = isCustomExam ? (activeExam?.questions?.speakingQuestions || []) : (activeExam?.questions?.speakingQuestions || SPEAKING_QUESTIONS);
+  const examConfig = activeExam?.questions?.config || {};
+
+  const rawListeningPart1 = isCustomExam ? (activeExam?.questions?.listeningPart1 || []) : (activeExam?.questions?.listeningPart1 || LISTENING_PART_1);
+  const listeningPart1 = examConfig.limitListeningPart1 ? rawListeningPart1.slice(0, Number(examConfig.limitListeningPart1)) : rawListeningPart1;
+
+  const rawListeningPart2 = isCustomExam ? (activeExam?.questions?.listeningPart2 || []) : (activeExam?.questions?.listeningPart2 || LISTENING_PART_2);
+  const listeningPart2 = examConfig.limitListeningPart2 ? rawListeningPart2.slice(0, Number(examConfig.limitListeningPart2)) : rawListeningPart2;
+
+  const rawSpeakingQuestions = isCustomExam ? (activeExam?.questions?.speakingQuestions || []) : (activeExam?.questions?.speakingQuestions || SPEAKING_QUESTIONS);
+  const speakingQuestions = examConfig.limitSpeaking ? rawSpeakingQuestions.slice(0, Number(examConfig.limitSpeaking)) : rawSpeakingQuestions;
+
   const speakingReadAloud = isCustomExam ? (activeExam?.questions?.speakingReadAloud || { text: "", wordCount: 0 }) : (activeExam?.questions?.speakingReadAloud || SPEAKING_READ_ALOUD);
-  const grammarQuestions = isCustomExam ? (activeExam?.questions?.grammar || []) : (activeExam?.questions?.grammar || GRAMMAR_QUESTIONS);
-  const vocabularyQuestions = isCustomExam ? (activeExam?.questions?.vocabulary || []) : (activeExam?.questions?.vocabulary || VOCABULARY_QUESTIONS);
-  const readingPassage = isCustomExam ? (activeExam?.questions?.readingPassage || { title: "", text: "", questionsPartA: [], questionsPartB: [] }) : (activeExam?.questions?.readingPassage || READING_PASSAGE);
-  const writingQuestions = isCustomExam ? (activeExam?.questions?.writingQuestions || []) : (activeExam?.questions?.writingQuestions || WRITING_QUESTIONS);
+
+  const rawGrammarQuestions = isCustomExam ? (activeExam?.questions?.grammar || []) : (activeExam?.questions?.grammar || GRAMMAR_QUESTIONS);
+  const grammarQuestions = examConfig.limitGrammar ? rawGrammarQuestions.slice(0, Number(examConfig.limitGrammar)) : rawGrammarQuestions;
+
+  const rawVocabularyQuestions = isCustomExam ? (activeExam?.questions?.vocabulary || []) : (activeExam?.questions?.vocabulary || VOCABULARY_QUESTIONS);
+  const vocabularyQuestions = examConfig.limitVocabulary ? rawVocabularyQuestions.slice(0, Number(examConfig.limitVocabulary)) : rawVocabularyQuestions;
+
+  const rawReadingPassage = isCustomExam ? (activeExam?.questions?.readingPassage || { title: "", text: "", questionsPartA: [], questionsPartB: [] }) : (activeExam?.questions?.readingPassage || READING_PASSAGE);
+  const readingPassage = {
+    ...rawReadingPassage,
+    questionsPartA: examConfig.limitReadingPartA ? (rawReadingPassage.questionsPartA || []).slice(0, Number(examConfig.limitReadingPartA)) : (rawReadingPassage.questionsPartA || []),
+    questionsPartB: examConfig.limitReadingPartB ? (rawReadingPassage.questionsPartB || []).slice(0, Number(examConfig.limitReadingPartB)) : (rawReadingPassage.questionsPartB || [])
+  };
+
+  const rawWritingQuestions = isCustomExam ? (activeExam?.questions?.writingQuestions || []) : (activeExam?.questions?.writingQuestions || WRITING_QUESTIONS);
+  const writingQuestions = examConfig.limitWriting ? rawWritingQuestions.slice(0, Number(examConfig.limitWriting)) : rawWritingQuestions;
 
   // Define active question bank for the side navigator palette
   const getActiveSectionQuestions = () => {

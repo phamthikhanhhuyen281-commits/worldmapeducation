@@ -137,6 +137,21 @@ export default function ReadingSection({
                         LÀM LẠI CÂU NÀY
                       </button>
                     </div>
+                  ) : (!q.options || q.options.length === 0) ? (
+                    <div className="flex items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                      <span className="text-xs font-semibold text-slate-500">Đáp án:</span>
+                      <input
+                        type="text"
+                        id={`input-blank-${q.id}`}
+                        placeholder="Nhập câu trả lời..."
+                        value={currentAnswer}
+                        onChange={(e) => {
+                          onAnswerChange(q.id, e.target.value);
+                          setCurrentQuestionId(q.id);
+                        }}
+                        className="border-b-2 border-indigo-300 focus:border-indigo-600 focus:bg-indigo-50/30 outline-none px-2 font-bold text-indigo-950 min-w-[200px] bg-transparent py-0.5 transition-all text-xs"
+                      />
+                    </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2 pt-1">
                       {q.options?.map((option, oIdx) => {

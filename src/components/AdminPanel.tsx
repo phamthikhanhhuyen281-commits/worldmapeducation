@@ -33,7 +33,8 @@ import {
   Activity,
   Globe,
   Share2,
-  Eye
+  Eye,
+  Sliders
 } from 'lucide-react';
 import { WRITING_QUESTIONS, LISTENING_PART_1, LISTENING_PART_2, GRAMMAR_QUESTIONS, VOCABULARY_QUESTIONS, READING_PASSAGE } from '../questions';
 
@@ -240,6 +241,16 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
   const [scanError, setScanError] = useState('');
   const [scannedQuestions, setScannedQuestions] = useState<any[]>([]);
 
+  // Configured Question Counts/Limits states
+  const [limitListeningPart1, setLimitListeningPart1] = useState<number | ''>('');
+  const [limitListeningPart2, setLimitListeningPart2] = useState<number | ''>('');
+  const [limitReadingPartA, setLimitReadingPartA] = useState<number | ''>('');
+  const [limitReadingPartB, setLimitReadingPartB] = useState<number | ''>('');
+  const [limitGrammar, setLimitGrammar] = useState<number | ''>('');
+  const [limitVocabulary, setLimitVocabulary] = useState<number | ''>('');
+  const [limitWriting, setLimitWriting] = useState<number | ''>('');
+  const [limitSpeaking, setLimitSpeaking] = useState<number | ''>('');
+
   // Visual Question Builder states
   const [qbMainSkill, setQbMainSkill] = useState<string>('listening');
   const [qbSkill, setQbSkill] = useState<string>('listeningPart1');
@@ -288,6 +299,21 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
         }
       }
 
+      if (parsedQuestions && typeof parsedQuestions === 'object') {
+        const currentConfig = (parsedQuestions as any).config || {};
+        (parsedQuestions as any).config = {
+          ...currentConfig,
+          limitListeningPart1: limitListeningPart1 !== '' ? Number(limitListeningPart1) : undefined,
+          limitListeningPart2: limitListeningPart2 !== '' ? Number(limitListeningPart2) : undefined,
+          limitReadingPartA: limitReadingPartA !== '' ? Number(limitReadingPartA) : undefined,
+          limitReadingPartB: limitReadingPartB !== '' ? Number(limitReadingPartB) : undefined,
+          limitGrammar: limitGrammar !== '' ? Number(limitGrammar) : undefined,
+          limitVocabulary: limitVocabulary !== '' ? Number(limitVocabulary) : undefined,
+          limitWriting: limitWriting !== '' ? Number(limitWriting) : undefined,
+          limitSpeaking: limitSpeaking !== '' ? Number(limitSpeaking) : undefined,
+        };
+      }
+
       const id = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
       
       let finalAudio1 = examAudio1Url;
@@ -326,6 +352,14 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
       setExamAudio1Url('');
       setExamAudio2Url('');
       setExamQuestionsJson('');
+      setLimitListeningPart1('');
+      setLimitListeningPart2('');
+      setLimitReadingPartA('');
+      setLimitReadingPartB('');
+      setLimitGrammar('');
+      setLimitVocabulary('');
+      setLimitWriting('');
+      setLimitSpeaking('');
       setEditingExamId(null);
       fetchExams();
     } catch (err: any) {
@@ -372,6 +406,21 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
         }
       }
 
+      if (parsedQuestions && typeof parsedQuestions === 'object') {
+        const currentConfig = (parsedQuestions as any).config || {};
+        (parsedQuestions as any).config = {
+          ...currentConfig,
+          limitListeningPart1: limitListeningPart1 !== '' ? Number(limitListeningPart1) : undefined,
+          limitListeningPart2: limitListeningPart2 !== '' ? Number(limitListeningPart2) : undefined,
+          limitReadingPartA: limitReadingPartA !== '' ? Number(limitReadingPartA) : undefined,
+          limitReadingPartB: limitReadingPartB !== '' ? Number(limitReadingPartB) : undefined,
+          limitGrammar: limitGrammar !== '' ? Number(limitGrammar) : undefined,
+          limitVocabulary: limitVocabulary !== '' ? Number(limitVocabulary) : undefined,
+          limitWriting: limitWriting !== '' ? Number(limitWriting) : undefined,
+          limitSpeaking: limitSpeaking !== '' ? Number(limitSpeaking) : undefined,
+        };
+      }
+
       const updatedExam = {
         id: editingExamId,
         title: examTitle.trim(),
@@ -391,6 +440,14 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
       setExamAudio1Url('');
       setExamAudio2Url('');
       setExamQuestionsJson('');
+      setLimitListeningPart1('');
+      setLimitListeningPart2('');
+      setLimitReadingPartA('');
+      setLimitReadingPartB('');
+      setLimitGrammar('');
+      setLimitVocabulary('');
+      setLimitWriting('');
+      setLimitSpeaking('');
       fetchExams();
     } catch (err: any) {
       showAlert('Thất bại', err.message || 'Lỗi khi cập nhật đề thi.', 'error');
@@ -420,6 +477,17 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
     setExamAudio1Url(exam.audio1Url || exam.questions?.audio1Url || exam.questions?.audioUrl || exam.questions?.audio || exam.questions?.audio1 || '');
     setExamAudio2Url(exam.audio2Url || exam.questions?.audio2Url || exam.questions?.audio2 || '');
     setExamQuestionsJson(JSON.stringify(exam.questions || {}, null, 2));
+
+    const config = exam.questions?.config || {};
+    setLimitListeningPart1(config.limitListeningPart1 !== undefined && config.limitListeningPart1 !== null ? config.limitListeningPart1 : '');
+    setLimitListeningPart2(config.limitListeningPart2 !== undefined && config.limitListeningPart2 !== null ? config.limitListeningPart2 : '');
+    setLimitReadingPartA(config.limitReadingPartA !== undefined && config.limitReadingPartA !== null ? config.limitReadingPartA : '');
+    setLimitReadingPartB(config.limitReadingPartB !== undefined && config.limitReadingPartB !== null ? config.limitReadingPartB : '');
+    setLimitGrammar(config.limitGrammar !== undefined && config.limitGrammar !== null ? config.limitGrammar : '');
+    setLimitVocabulary(config.limitVocabulary !== undefined && config.limitVocabulary !== null ? config.limitVocabulary : '');
+    setLimitWriting(config.limitWriting !== undefined && config.limitWriting !== null ? config.limitWriting : '');
+    setLimitSpeaking(config.limitSpeaking !== undefined && config.limitSpeaking !== null ? config.limitSpeaking : '');
+
     setExamActiveSubTab('candidates');
   };
 
@@ -455,14 +523,36 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
 
     const uniqueId = `${qbSkill}_${Date.now()}`;
 
+    const isFillBlankType = [
+      'Note Completion',
+      'Form Completion',
+      'Table Completion',
+      'Short Answer',
+      'Summary Completion',
+      'Gap Filling'
+    ].includes(qbQuestionType);
+
+    const isTrueFalseNotGiven = qbQuestionType === 'True/False/Not Given';
+
+    let finalOptions: string[] = [];
+    let finalAnswer = qbCorrectAnswer;
+
+    if (isTrueFalseNotGiven) {
+      finalOptions = ['True', 'False', 'Not Given'];
+    } else if (isFillBlankType) {
+      finalOptions = [];
+    } else {
+      finalOptions = [...qbOptions];
+    }
+
     if (qbSkill === 'listeningPart1') {
       currentObj.listeningPart1.push({
         id: uniqueId,
         audioUrl: qbAudioUrl.trim() || undefined,
         imageUrl: qbImageUrl.trim() || undefined,
         question: qbQuestionText.trim(),
-        options: [...qbOptions],
-        answer: qbCorrectAnswer,
+        options: finalOptions,
+        answer: finalAnswer,
         type: qbQuestionType
       });
     } else if (qbSkill === 'listeningPart2') {
@@ -471,24 +561,24 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
         audioUrl: qbAudioUrl.trim() || undefined,
         imageUrl: qbImageUrl.trim() || undefined,
         question: qbQuestionText.trim(),
-        options: [...qbOptions],
-        answer: qbCorrectAnswer,
+        options: finalOptions,
+        answer: finalAnswer,
         type: qbQuestionType
       });
     } else if (qbSkill === 'grammar') {
       currentObj.grammar.push({
         id: uniqueId,
         question: qbQuestionText.trim(),
-        options: [...qbOptions],
-        answer: qbCorrectAnswer,
+        options: finalOptions,
+        answer: finalAnswer,
         type: qbQuestionType
       });
     } else if (qbSkill === 'vocabulary') {
       currentObj.vocabulary.push({
         id: uniqueId,
         question: qbQuestionText.trim(),
-        options: [...qbOptions],
-        answer: qbCorrectAnswer,
+        options: finalOptions,
+        answer: finalAnswer,
         type: qbQuestionType
       });
     } else if (qbSkill === 'readingPartA') {
@@ -499,8 +589,8 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
         currentObj.readingPassage.questionsPartA.push({
           id: uniqueId,
           question: qbQuestionText.trim(),
-          options: [...qbOptions],
-          answer: qbCorrectAnswer,
+          options: finalOptions,
+          answer: finalAnswer,
           type: qbQuestionType
         });
       }
@@ -512,8 +602,8 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
         currentObj.readingPassage.questionsPartB.push({
           id: uniqueId,
           question: qbQuestionText.trim(),
-          options: [...qbOptions],
-          answer: qbCorrectAnswer,
+          options: finalOptions,
+          answer: finalAnswer,
           type: qbQuestionType
         });
       }
@@ -558,6 +648,120 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
     } finally {
       setExamLoading(false);
     }
+  };
+
+  const renderQuestionLimitsConfig = () => {
+    return (
+      <div className="bg-indigo-50/40 border border-indigo-100 rounded-2xl p-4 space-y-3">
+        <div>
+          <h4 className="text-xs font-extrabold text-indigo-950 uppercase tracking-wide flex items-center gap-1.5">
+            <Sliders className="w-4.5 h-4.5 text-indigo-900" />
+            Cấu hình số lượng câu hỏi hiển thị (Display Question Limits)
+          </h4>
+          <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
+            Nhập số lượng câu hỏi thực tế muốn hiển thị cho mỗi phần thi khi học sinh làm bài. Để trống (hoặc 0) nếu muốn hiển thị tất cả các câu hỏi đã thêm trong phần đó.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Listening Part 1</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitListeningPart1}
+              onChange={(e) => setLimitListeningPart1(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Listening Part 2</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitListeningPart2}
+              onChange={(e) => setLimitListeningPart2(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Reading Part A</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitReadingPartA}
+              onChange={(e) => setLimitReadingPartA(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Reading Part B</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitReadingPartB}
+              onChange={(e) => setLimitReadingPartB(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Grammar</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitGrammar}
+              onChange={(e) => setLimitGrammar(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Vocabulary</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitVocabulary}
+              onChange={(e) => setLimitVocabulary(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Writing</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitWriting}
+              onChange={(e) => setLimitWriting(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[9px] font-black text-slate-600 uppercase tracking-wider">Speaking (Part 2)</label>
+            <input
+              type="number"
+              min={1}
+              placeholder="Tất cả (All)"
+              value={limitSpeaking}
+              onChange={(e) => setLimitSpeaking(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+              className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+            />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const renderVisualQuestionBuilder = () => {
@@ -646,7 +850,24 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
             <label className="block text-[9px] font-bold text-slate-500 uppercase">1C. Chọn dạng bài chi tiết (Question Type)</label>
             <select
               value={qbQuestionType}
-              onChange={(e) => setQbQuestionType(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setQbQuestionType(val);
+                if (val === 'True/False/Not Given') {
+                  setQbCorrectAnswer('True');
+                } else if ([
+                  'Note Completion',
+                  'Form Completion',
+                  'Table Completion',
+                  'Short Answer',
+                  'Summary Completion',
+                  'Gap Filling'
+                ].includes(val)) {
+                  setQbCorrectAnswer('');
+                } else {
+                  setQbCorrectAnswer('A');
+                }
+              }}
               className="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
             >
               {qbMainSkill === 'listening' && (
@@ -814,42 +1035,88 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
           <div className="space-y-3 border-t border-slate-150 pt-3">
             <label className="block text-[9px] font-bold text-slate-500 uppercase">4. Các phương án lựa chọn & Đáp án đúng</label>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {qbOptions.map((opt, idx) => {
-                const letter = String.fromCharCode(65 + idx); // A, B, C, D
-                return (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-indigo-950 w-4 text-center">{letter}.</span>
-                    <input
-                      type="text"
-                      placeholder={`Phương án ${letter}...`}
-                      value={opt}
-                      onChange={(e) => {
-                        const newOpts = [...qbOptions];
-                        newOpts[idx] = e.target.value;
-                        setQbOptions(newOpts);
-                      }}
-                      className="flex-1 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            {qbQuestionType === 'True/False/Not Given' ? (
+              <div className="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl space-y-2">
+                <p className="text-xs font-bold text-indigo-950">Dạng bài: True / False / Not Given</p>
+                <p className="text-[11px] text-slate-600">Hệ thống sẽ tự động cấu hình 3 lựa chọn cố định: <strong>True</strong>, <strong>False</strong>, và <strong>Not Given</strong>.</p>
+                
+                <div className="flex items-center gap-3 w-56 mt-2">
+                  <label className="block text-[10px] font-bold text-slate-600 shrink-0 font-semibold">Chọn đáp án đúng:</label>
+                  <select
+                    value={qbCorrectAnswer}
+                    onChange={(e) => setQbCorrectAnswer(e.target.value)}
+                    className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+                  >
+                    <option value="True">True (Đúng)</option>
+                    <option value="False">False (Sai)</option>
+                    <option value="Not Given">Not Given (Không đề cập)</option>
+                  </select>
+                </div>
+              </div>
+            ) : [
+              'Note Completion',
+              'Form Completion',
+              'Table Completion',
+              'Short Answer',
+              'Summary Completion',
+              'Gap Filling'
+            ].includes(qbQuestionType) ? (
+              <div className="p-3 bg-amber-50/50 border border-amber-150 rounded-xl space-y-2">
+                <p className="text-xs font-bold text-amber-900">Dạng bài: Điền từ vào chỗ trống / Trả lời ngắn</p>
+                <p className="text-[11px] text-slate-600">Học sinh sẽ gõ trực tiếp câu trả lời trên máy tính. Không cần các phương án A, B, C, D.</p>
+                
+                <div className="space-y-1 mt-2">
+                  <label className="block text-[10px] font-bold text-slate-600">Nhập đáp án đúng (từ hoặc số chính xác):</label>
+                  <input
+                    type="text"
+                    placeholder="Ví dụ: hotel, June, 30..."
+                    value={qbCorrectAnswer}
+                    onChange={(e) => setQbCorrectAnswer(e.target.value)}
+                    className="w-full max-w-md px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+                  />
+                  <p className="text-[9px] text-slate-400 font-medium">*(Lưu ý: Bạn có thể nhập nhiều phương án đúng chấp nhận được cách nhau bởi dấu gạch đứng nếu cần, ví dụ: hotel|hotels)*</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {qbOptions.map((opt, idx) => {
+                    const letter = String.fromCharCode(65 + idx); // A, B, C, D
+                    return (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className="font-bold text-xs text-indigo-950 w-4 text-center">{letter}.</span>
+                        <input
+                          type="text"
+                          placeholder={`Phương án ${letter}...`}
+                          value={opt}
+                          onChange={(e) => {
+                            const newOpts = [...qbOptions];
+                            newOpts[idx] = e.target.value;
+                            setQbOptions(newOpts);
+                          }}
+                          className="flex-1 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
 
-            {/* Correct Answer dropdown */}
-            <div className="flex items-center gap-3 w-40">
-              <label className="block text-[10px] font-bold text-slate-600 shrink-0">Đáp án đúng:</label>
-              <select
-                value={qbCorrectAnswer}
-                onChange={(e) => setQbCorrectAnswer(e.target.value)}
-                className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
-              >
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
-              </select>
-            </div>
+                {/* Correct Answer dropdown */}
+                <div className="flex items-center gap-3 w-40">
+                  <label className="block text-[10px] font-bold text-slate-600 shrink-0">Đáp án đúng:</label>
+                  <select
+                    value={qbCorrectAnswer}
+                    onChange={(e) => setQbCorrectAnswer(e.target.value)}
+                    className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-900 bg-white"
+                  >
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                  </select>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -3037,6 +3304,11 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
                           />
                         </div>
 
+                        {/* Config Question Display Limits */}
+                        <div className="border-t border-slate-100 pt-4">
+                          {renderQuestionLimitsConfig()}
+                        </div>
+
                         {/* Visual Question Builder */}
                         <div className="border-t border-slate-100 pt-4">
                           {renderVisualQuestionBuilder()}
@@ -3113,6 +3385,11 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
                         rows={2}
                         className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-900 text-xs transition-all"
                       />
+                    </div>
+
+                    {/* Config Question Display Limits */}
+                    <div className="border-t border-slate-100 pt-4">
+                      {renderQuestionLimitsConfig()}
                     </div>
 
                     {/* Visual Question Builder */}

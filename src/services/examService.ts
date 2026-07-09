@@ -66,7 +66,16 @@ export const examService = {
       
       const list: Exam[] = [];
       snap.forEach((d) => {
-        list.push({ id: d.id, ...d.data() } as Exam);
+        const data = d.data();
+        let exam = { id: d.id, ...data } as Exam;
+        if (exam.id === 'default-exam') {
+          const oldTextIndicator = "The local English placement test requires great focus";
+          if (exam.questions?.speakingReadAloud?.text?.includes(oldTextIndicator)) {
+            exam.questions.speakingReadAloud = SPEAKING_READ_ALOUD;
+            this.saveExam(exam).catch((e) => console.error('Failed to update default-exam text in Firebase:', e));
+          }
+        }
+        list.push(exam);
       });
       return list;
     } catch (err: any) {
@@ -85,7 +94,16 @@ export const examService = {
       const docRef = doc(db, 'exams', id);
       const snap = await getDoc(docRef);
       if (snap.exists()) {
-        return { id: snap.id, ...snap.data() } as Exam;
+        const data = snap.data();
+        let exam = { id: snap.id, ...data } as Exam;
+        if (exam.id === 'default-exam') {
+          const oldTextIndicator = "The local English placement test requires great focus";
+          if (exam.questions?.speakingReadAloud?.text?.includes(oldTextIndicator)) {
+            exam.questions.speakingReadAloud = SPEAKING_READ_ALOUD;
+            this.saveExam(exam).catch((e) => console.error('Failed to update default-exam text in Firebase:', e));
+          }
+        }
+        return exam;
       }
       // If default-exam requested and not found, try to bootstrap
       if (id === 'default-exam') {

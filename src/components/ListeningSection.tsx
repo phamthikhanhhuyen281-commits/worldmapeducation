@@ -127,6 +127,71 @@ export default function ListeningSection({
     );
   };
 
+  const renderInlineBlankStyled = (qId: string, displayNum: string) => {
+    const currentVal = answers[qId] || '';
+    const isSkipped = currentVal === '__SKIPPED__';
+    const isActive = currentQuestionId === qId;
+    
+    return (
+      <span
+        onClick={(e) => {
+          e.stopPropagation();
+          setCurrentQuestionId(qId);
+        }}
+        className="inline-flex items-center gap-1 cursor-pointer transition-all mx-1 align-baseline select-none"
+      >
+        {/* Badge number matching image exactly */}
+        <span className="inline-flex items-center justify-center bg-amber-50 text-[#b45309] border border-amber-200/60 rounded px-1.5 py-0.5 font-bold font-mono text-[11px] leading-none shrink-0">
+          ({displayNum})
+        </span>
+
+        {isSkipped ? (
+          <span className="inline-flex items-center gap-1.5 bg-amber-50/80 px-2 py-1 rounded border border-amber-200 text-xs font-bold text-amber-800 shadow-sm">
+            <span>Đã bỏ qua</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAnswerChange(qId, '');
+              }}
+              className="text-[10px] text-indigo-600 hover:text-indigo-800 underline font-black uppercase cursor-pointer"
+            >
+              Làm lại
+            </button>
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2">
+            <input
+              type="text"
+              id={`input-inline-blank-${qId}`}
+              value={currentVal}
+              placeholder=""
+              onChange={(e) => {
+                onAnswerChange(qId, e.target.value);
+              }}
+              className={`bg-transparent border-b border-indigo-400 text-indigo-600 font-bold text-sm px-2 pb-0.5 outline-none w-48 text-left transition-all ${
+                isActive ? 'border-indigo-600 border-b-2 bg-indigo-50/10' : 'hover:border-indigo-500'
+              }`}
+            />
+            
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSkipQuestion(qId);
+                onAnswerChange(qId, '__SKIPPED__');
+              }}
+              className="text-[9px] text-slate-400 hover:text-amber-700 hover:bg-amber-50 px-1 py-0.5 rounded transition-all font-bold cursor-pointer uppercase border border-slate-200"
+              title="Bỏ qua câu này"
+            >
+              Bỏ qua
+            </button>
+          </span>
+        )}
+      </span>
+    );
+  };
+
   const [audio1State, setAudio1State] = useState<'idle' | 'playing' | 'ended'>('idle');
   const [audio2State, setAudio2State] = useState<'idle' | 'playing' | 'ended'>('idle');
 
@@ -387,6 +452,21 @@ export default function ListeningSection({
                               LÀM LẠI CÂU NÀY
                             </button>
                           </div>
+                        ) : (!q.options || q.options.length === 0) ? (
+                          <div className="flex items-center gap-2 pt-1">
+                            <span className="text-xs font-semibold text-slate-500">Đáp án:</span>
+                            <input
+                              type="text"
+                              id={`input-blank-${q.id}`}
+                              placeholder="Nhập câu trả lời..."
+                              value={currentAnswer}
+                              onChange={(e) => {
+                                onAnswerChange(q.id, e.target.value);
+                                setCurrentQuestionId(q.id);
+                              }}
+                              className="border-b-2 border-indigo-300 focus:border-indigo-600 focus:bg-indigo-50/30 outline-none px-2 font-bold text-indigo-950 min-w-[200px] bg-transparent py-0.5 transition-all text-xs"
+                            />
+                          </div>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {q.options.map((option, oIdx) => {
@@ -461,17 +541,11 @@ export default function ListeningSection({
               </div>
 
               {/* Audio 2 Control Panel */}
-              <div className="p-5 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/65 shadow-inner">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-900 text-white flex items-center justify-center shrink-0 shadow-sm">
-                      <Volume2 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-slate-800 text-sm">Audio Clip 02</h4>
-                      <p className="text-[11px] text-slate-500 font-medium leading-none mt-1">Audio can only be played ONCE. Please listen carefully.</p>
-                    </div>
-                  </div>
+              <div className="p-6 rounded-2xl border border-slate-800 bg-[#0f172a] shadow-xl text-slate-300 font-sans">
+                <div className="space-y-4">
+                  <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                    Tập tin âm thanh này chỉ được phép nghe <strong className="text-red-500 font-black underline uppercase">01 LẦN DUY NHẤT</strong>. Bạn không thể Tạm dừng, Tua nhanh, Tua lại, Thay đổi tốc độ hoặc Tải về. Xin vui lòng tập trung lắng nghe.
+                  </p>
 
                   <audio
                     ref={audio2Ref}
@@ -487,25 +561,25 @@ export default function ListeningSection({
                     id="play-audio2-btn"
                     onClick={handlePlayAudio2}
                     disabled={audio2State !== 'idle' || !finalAudio2Url}
-                    className={`px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm cursor-pointer select-none transition-all sm:w-auto w-full justify-center ${
+                    className={`w-full py-3.5 px-8 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-md cursor-pointer select-none transition-all ${
                       !finalAudio2Url
-                        ? 'bg-rose-100 text-rose-500 cursor-not-allowed border border-rose-200 shadow-none font-bold'
+                        ? 'bg-rose-950/40 text-rose-400 cursor-not-allowed border border-rose-900/50'
                         : audio2State === 'idle'
-                        ? 'bg-indigo-900 hover:bg-indigo-850 text-white'
+                        ? 'bg-[#6366f1] hover:bg-[#5254e3] text-white'
                         : audio2State === 'playing'
                         ? 'bg-emerald-600 text-white animate-pulse'
-                        : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                        : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
                     }`}
                   >
                     {!finalAudio2Url && <>CHƯA CẤU HÌNH AUDIO (NO AUDIO)</>}
-                    {finalAudio2Url && audio2State === 'idle' && <><Play className="w-3.5 h-3.5 fill-current" /> PLAY AUDIO 2</>}
+                    {finalAudio2Url && audio2State === 'idle' && <><Play className="w-3.5 h-3.5 fill-current" /> PHÁT AUDIO</>}
                     {finalAudio2Url && audio2State === 'playing' && <><Volume2 className="w-3.5 h-3.5 animate-bounce" /> LISTENING...</>}
                     {finalAudio2Url && audio2State === 'ended' && <>AUDIO PLAYED (BLOCKED)</>}
                   </button>
                 </div>
 
                 {!finalAudio2Url && (
-                  <div className="mt-3.5 p-3 rounded-xl bg-rose-50/70 border border-rose-150 text-[11px] text-rose-800 leading-relaxed font-medium">
+                  <div className="mt-3.5 p-3 rounded-xl bg-rose-950/20 border border-rose-900/40 text-[11px] text-rose-400 leading-relaxed font-medium">
                     ⚠️ <strong>Lưu ý:</strong> Đề thi tự tạo này hiện chưa có liên kết âm thanh (Audio 2). 
                     Nếu bạn là giáo viên/quản trị viên, vui lòng vào trang <strong>Admin Panel</strong>, chọn đề thi này và dán Link URL hoặc nhấn <strong>"Tải lên Audio 2"</strong> để học viên có thể làm bài nghe!
                   </div>
@@ -513,8 +587,8 @@ export default function ListeningSection({
 
                 {/* Progress bar */}
                 {audio2State === 'playing' && (
-                  <div className="mt-3 w-full bg-slate-200/85 rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-indigo-900 h-1.5 transition-all duration-300" style={{ width: `${audio2Progress}%` }} />
+                  <div className="mt-4 w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-[#6366f1] h-1.5 transition-all duration-300" style={{ width: `${audio2Progress}%` }} />
                   </div>
                 )}
               </div>
@@ -528,89 +602,153 @@ export default function ListeningSection({
                 </p>
 
                 {questionsPart2.length === 10 && questionsPart2[0]?.id === 'l2_1' ? (
-                  <div className="border border-slate-200 rounded-2xl p-6 md:p-8 bg-white shadow-sm space-y-6 font-serif text-slate-900 leading-relaxed text-sm">
-                    {/* Outer Frame with elegant header */}
-                    <div className="border-b-2 border-indigo-950 pb-3 mb-4 text-center">
-                      <h4 className="text-base md:text-lg font-bold font-sans text-indigo-950 tracking-wider uppercase">
-                        RENTED PROPERTIES: INFORMATION ABOUT A HOUSE
+                  <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md font-sans text-sm">
+                    {/* Header */}
+                    <div className="bg-[#06244f] px-6 py-4 border-b border-slate-200 text-left">
+                      <h4 className="text-sm md:text-base font-extrabold text-white tracking-wide uppercase">
+                        Rented Properties: Information About a House
                       </h4>
                     </div>
 
-                    <div className="space-y-6">
-                      {/* Availability & Pricing Group */}
-                      <div className="space-y-3">
-                        <h5 className="font-sans font-bold text-[#1e3a8a] border-b border-dashed border-slate-200 pb-1 text-xs uppercase tracking-wide">
-                          Availability & Pricing
-                        </h5>
-                        <ul className="list-disc pl-5 space-y-2">
-                          <li id="listening-q-l2_1" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            Available date: {renderInlineBlank('l2_1', 8, '8')}
-                          </li>
-                          <li id="listening-q-l2_2" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            Prices Rent: $ {renderInlineBlank('l2_2', 9, '9')} per month
-                          </li>
-                          <li className="text-slate-500 p-1">
+                    {/* Table Body */}
+                    <div className="divide-y divide-slate-200">
+                      
+                      {/* ROW 1: Availability & Pricing */}
+                      <div className="flex flex-col md:flex-row">
+                        {/* Left Column (Category) */}
+                        <div className="w-full md:w-1/4 bg-[#f8fafc] px-6 py-8 md:border-r border-slate-200 flex items-start md:items-center justify-start md:justify-center">
+                          <h5 className="font-extrabold text-indigo-600 text-xs md:text-xs uppercase tracking-widest text-left md:text-center leading-normal">
+                            Availability &<br />Pricing
+                          </h5>
+                        </div>
+                        {/* Right Column (Items) */}
+                        <div className="w-full md:w-3/4 px-6 py-8 space-y-6 bg-white">
+                          
+                          {/* Item 1 */}
+                          <div id="listening-q-l2_1" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1">
+                            <span>Available date:</span>
+                            {renderInlineBlankStyled('l2_1', '8')}
+                          </div>
+
+                          {/* Item 2 */}
+                          <div id="listening-q-l2_2" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1">
+                            <span>Rent: $</span>
+                            {renderInlineBlankStyled('l2_2', '9')}
+                            <span className="ml-1">per month</span>
+                          </div>
+
+                          {/* Item 3 */}
+                          <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
                             Deposit: $1,500
-                          </li>
-                          <li id="listening-q-l2_3" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            Credit check: {renderInlineBlank('l2_3', 10, '10')}
-                          </li>
-                        </ul>
+                          </div>
+
+                          {/* Item 4 */}
+                          <div id="listening-q-l2_3" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1">
+                            <span>Credit check: $</span>
+                            {renderInlineBlankStyled('l2_3', '10')}
+                          </div>
+
+                        </div>
                       </div>
 
-                      {/* Facilities Group */}
-                      <div className="space-y-3">
-                        <h5 className="font-sans font-bold text-[#1e3a8a] border-b border-dashed border-slate-200 pb-1 text-xs uppercase tracking-wide">
-                          Facilities
-                        </h5>
-                        <ul className="list-disc pl-5 space-y-2">
-                          <li className="text-slate-500 p-1">
+                      {/* ROW 2: Facilities */}
+                      <div className="flex flex-col md:flex-row">
+                        {/* Left Column */}
+                        <div className="w-full md:w-1/4 bg-[#f8fafc] px-6 py-8 md:border-r border-slate-200 flex items-start md:items-center justify-start md:justify-center">
+                          <h5 className="font-extrabold text-indigo-600 text-xs md:text-xs uppercase tracking-widest text-left md:text-center leading-normal">
+                            Facilities
+                          </h5>
+                        </div>
+                        {/* Right Column */}
+                        <div className="w-full md:w-3/4 px-6 py-8 space-y-6 bg-white">
+                          
+                          {/* Item 1 */}
+                          <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
                             Bedrooms and bathrooms: 3 bedrooms and 2 bathrooms
-                          </li>
-                          <li id="listening-q-l2_4" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            A remodelled: {renderInlineBlank('l2_4', 11, '11')}
-                          </li>
-                          <li id="listening-q-l2_5" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            No: {renderInlineBlank('l2_5', 12, '12')}
-                          </li>
-                          <li id="listening-q-l2_6" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            Parking: A {renderInlineBlank('l2_6', 13, '13')} with a work area
-                          </li>
-                        </ul>
+                          </div>
+
+                          {/* Item 2 */}
+                          <div id="listening-q-l2_4" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1">
+                            <span>A remodelled</span>
+                            {renderInlineBlankStyled('l2_4', '11')}
+                          </div>
+
+                          {/* Item 3 */}
+                          <div id="listening-q-l2_5" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1">
+                            <span>No</span>
+                            {renderInlineBlankStyled('l2_5', '12')}
+                          </div>
+
+                          {/* Item 4 */}
+                          <div id="listening-q-l2_6" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1">
+                            <span>Parking: A</span>
+                            {renderInlineBlankStyled('l2_6', '13')}
+                            <span className="ml-1">with a work area</span>
+                          </div>
+
+                        </div>
                       </div>
 
-                      {/* Utilities Group */}
-                      <div className="space-y-3">
-                        <h5 className="font-sans font-bold text-[#1e3a8a] border-b border-dashed border-slate-200 pb-1 text-xs uppercase tracking-wide">
-                          Utilities
-                        </h5>
-                        <ul className="list-disc pl-5 space-y-2">
-                          <li id="listening-q-l2_7" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            Garden care: The landlord will provide landscaping service, but the tenants must {renderInlineBlank('l2_7', 14, '14')} the grass.
-                          </li>
-                          <li id="listening-q-l2_8" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            The tenants should pay $15 for trashing and {renderInlineBlank('l2_8', 15, '15')} service.
-                          </li>
-                          <li className="text-slate-500 p-1">
-                            Other bills: The tenants should pay for electricity, water and gas bills.
-                          </li>
-                        </ul>
+                      {/* ROW 3: Utilities */}
+                      <div className="flex flex-col md:flex-row">
+                        {/* Left Column */}
+                        <div className="w-full md:w-1/4 bg-[#f8fafc] px-6 py-8 md:border-r border-slate-200 flex items-start md:items-center justify-start md:justify-center">
+                          <h5 className="font-extrabold text-indigo-600 text-xs md:text-xs uppercase tracking-widest text-left md:text-center leading-normal">
+                            Utilities
+                          </h5>
+                        </div>
+                        {/* Right Column */}
+                        <div className="w-full md:w-3/4 px-6 py-8 space-y-6 bg-white">
+                          
+                          {/* Item 1 */}
+                          <div id="listening-q-l2_7" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1 leading-relaxed">
+                            <span>Garden care: The landlord will provide landscaping, but tenants must</span>
+                            {renderInlineBlankStyled('l2_7', '14')}
+                            <span className="ml-1">the grass.</span>
+                          </div>
+
+                          {/* Item 2 */}
+                          <div id="listening-q-l2_8" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1 leading-relaxed">
+                            <span>Tenants pay $15 for trashing and</span>
+                            {renderInlineBlankStyled('l2_8', '15')}
+                            <span className="ml-1">service.</span>
+                          </div>
+
+                          {/* Item 3 */}
+                          <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                            Other bills: Tenants pay for electricity, water and gas.
+                          </div>
+
+                        </div>
                       </div>
 
-                      {/* Other Information Group */}
-                      <div className="space-y-3">
-                        <h5 className="font-sans font-bold text-[#1e3a8a] border-b border-dashed border-slate-200 pb-1 text-xs uppercase tracking-wide">
-                          Other Information
-                        </h5>
-                        <ul className="list-disc pl-5 space-y-2">
-                          <li id="listening-q-l2_9" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            Air conditioning: There is no central air conditioning, but there is a {renderInlineBlank('l2_9', 16, '16')} conditioning unit.
-                          </li>
-                          <li id="listening-q-l2_10" className="transition-all hover:bg-slate-50 p-1 rounded">
-                            Student's name: Sam {renderInlineBlank('l2_10', 17, '17')}
-                          </li>
-                        </ul>
+                      {/* ROW 4: Other Information */}
+                      <div className="flex flex-col md:flex-row">
+                        {/* Left Column */}
+                        <div className="w-full md:w-1/4 bg-[#f8fafc] px-6 py-8 md:border-r border-slate-200 flex items-start md:items-center justify-start md:justify-center">
+                          <h5 className="font-extrabold text-indigo-600 text-xs md:text-xs uppercase tracking-widest text-left md:text-center leading-normal">
+                            Other<br />Information
+                          </h5>
+                        </div>
+                        {/* Right Column */}
+                        <div className="w-full md:w-3/4 px-6 py-8 space-y-6 bg-white">
+                          
+                          {/* Item 1 */}
+                          <div id="listening-q-l2_9" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1 leading-relaxed">
+                            <span>Air conditioning: No central air conditioning, but there is a</span>
+                            {renderInlineBlankStyled('l2_9', '16')}
+                            <span className="ml-1">conditioning unit.</span>
+                          </div>
+
+                          {/* Item 2 */}
+                          <div id="listening-q-l2_10" className="text-slate-700 text-sm font-medium flex flex-wrap items-center gap-1 leading-relaxed">
+                            <span>Student's name: Sam</span>
+                            {renderInlineBlankStyled('l2_10', '17')}
+                          </div>
+
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 ) : (

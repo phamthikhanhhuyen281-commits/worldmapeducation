@@ -141,8 +141,8 @@ export const LISTENING_PART_2: BlankQuestion[] = [
 ];
 
 export const SPEAKING_READ_ALOUD = {
-  text: "Kate studies at a small school near the park every Saturday. She takes a notebook, checks her homework, and talks to her classmates after class. As her English improves, she becomes more confident in communicating with others and starts participating in speaking competitions. Although preparing for these competitions requires considerable dedication and consistent practice, she believes the experience helps her develop critical thinking and effective communication skills",
-  wordCount: 91
+  text: "Kate studies at a small school near the park every Saturday. She takes a notebook, checks her homework, and talks to her classmates after class. As her English improves, she becomes more confident in communicating with others and starts participating in speaking competitions. Although preparing for these competitions requires considerable dedication and consistent practice, she believes the experience helps her develop critical thinking and effective communication skills.",
+  wordCount: 67
 };
 
 export const SPEAKING_QUESTIONS = [
