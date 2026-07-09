@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clock, ShieldCheck, User2, Award } from 'lucide-react';
+import { languageService, Language } from '../services/languageService';
 import LanguageToggle from './LanguageToggle';
 
 interface HeaderProps {
@@ -21,6 +22,14 @@ export default function Header({
   sectionsList,
   examTitle
 }: HeaderProps) {
+  const [lang, setLang] = useState<Language>(languageService.getLanguage());
+
+  useEffect(() => {
+    return languageService.onChange((newLang) => {
+      setLang(newLang);
+    });
+  }, []);
+
   // Format seconds to mm:ss
   const formatTime = (totalSeconds: number) => {
     if (totalSeconds <= 0) return '00:00';
@@ -65,10 +74,10 @@ export default function Header({
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-black tracking-tight text-white uppercase">
-                ENGLISH PLACEMENT TEST
+                {lang === 'vi' ? 'BÀI THI PHÂN LỚP TIẾNG ANH' : 'ENGLISH PLACEMENT TEST'}
               </h1>
               <p className="text-[10px] md:text-xs text-indigo-200 font-bold uppercase tracking-widest leading-none mt-0.5">
-                Kỳ thi: {examTitle || 'Đang tải...'}
+                {lang === 'vi' ? 'Kỳ thi: ' : 'Exam: '}{examTitle || (lang === 'vi' ? 'Đang tải...' : 'Loading...')}
               </p>
             </div>
           </div>
@@ -78,7 +87,9 @@ export default function Header({
             
             {/* Candidate Box */}
             <div className="px-4 py-1.5 rounded-xl border border-indigo-700 bg-indigo-950/40 text-left shrink-0">
-              <div className="text-[9px] uppercase tracking-wider text-indigo-300 font-semibold opacity-80 leading-none">Candidate</div>
+              <div className="text-[9px] uppercase tracking-wider text-indigo-300 font-semibold opacity-80 leading-none">
+                {lang === 'vi' ? 'Thí sinh' : 'Candidate'}
+              </div>
               <div className="text-xs font-bold text-white mt-0.5 flex items-center gap-1.5">
                 <span>{fullName}</span>
                 <span className="text-indigo-400">•</span>
@@ -93,7 +104,9 @@ export default function Header({
             >
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${timerStyle.indicatorClass}`} />
-                <span className="text-[10px] font-sans uppercase font-bold tracking-wider leading-none opacity-80">Remaining</span>
+                <span className="text-[10px] font-sans uppercase font-bold tracking-wider leading-none opacity-80">
+                  {lang === 'vi' ? 'Còn lại' : 'Remaining'}
+                </span>
               </div>
               <div className="font-mono text-2xl font-black tracking-tighter leading-none">
                 {formatTime(timeLeftSeconds)}
@@ -110,7 +123,7 @@ export default function Header({
         <div className="bg-indigo-950/45 px-6 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-b border-indigo-850">
           <div className="flex items-center gap-2 text-indigo-300 font-semibold text-[11px]">
             <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-            <span>CHUYỂN PHẦN THI (SECTIONS):</span>
+            <span>{lang === 'vi' ? 'CHUYỂN PHẦN THI (SECTIONS):' : 'SWITCH SECTION:'}</span>
           </div>
 
           <div className="w-full sm:w-auto overflow-x-auto flex items-center select-none scrollbar-none">

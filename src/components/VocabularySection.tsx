@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, ChevronLeft, ChevronRight, HelpCircle, CheckCircle } from 'lucide-react';
 import { VOCABULARY_QUESTIONS } from '../questions';
+import { languageService, Language } from '../services/languageService';
 
 interface VocabularySectionProps {
   answers: Record<string, string>;
@@ -19,6 +20,14 @@ export default function VocabularySection({
   setCurrentQuestionId,
   questions = VOCABULARY_QUESTIONS
 }: VocabularySectionProps) {
+  const [lang, setLang] = useState<Language>(languageService.getLanguage());
+
+  useEffect(() => {
+    return languageService.onChange((newLang) => {
+      setLang(newLang);
+    });
+  }, []);
+
   const [currentPage, setCurrentPage] = useState(0);
   const QUESTIONS_PER_PAGE = 5;
   const totalPages = Math.ceil(questions.length / QUESTIONS_PER_PAGE);
@@ -63,11 +72,11 @@ export default function VocabularySection({
   };
 
   const getLevelLabel = (index: number) => {
-    if (index < 3) return 'Level A1 (Cơ bản)';
-    if (index < 9) return 'Level A2 (Sơ cấp)';
-    if (index < 15) return 'Level B1 (Trung cấp)';
-    if (index < 19) return 'Level B2 (Trên trung cấp)';
-    return 'Level C1 (Cao cấp)';
+    if (index < 3) return lang === 'vi' ? 'Level A1 (Cơ bản)' : 'Level A1 (Basic)';
+    if (index < 9) return lang === 'vi' ? 'Level A2 (Sơ cấp)' : 'Level A2 (Elementary)';
+    if (index < 15) return lang === 'vi' ? 'Level B1 (Trung cấp)' : 'Level B1 (Intermediate)';
+    if (index < 19) return lang === 'vi' ? 'Level B2 (Trên trung cấp)' : 'Level B2 (Upper-Intermediate)';
+    return lang === 'vi' ? 'Level C1 (Cao cấp)' : 'Level C1 (Advanced)';
   };
 
   const getLevelColorClass = (index: number) => {
@@ -89,7 +98,9 @@ export default function VocabularySection({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-indigo-900" />
-              <h2 className="text-base font-black text-slate-800 uppercase">SECTION 3: VOCABULARY (TỪ VỰNG)</h2>
+              <h2 className="text-base font-black text-slate-800 uppercase">
+                {lang === 'vi' ? 'SECTION 3: VOCABULARY (TỪ VỰNG)' : 'SECTION 3: VOCABULARY'}
+              </h2>
             </div>
             
             {/* Page indicator badges */}
@@ -155,7 +166,7 @@ export default function VocabularySection({
                   {isSkipped ? (
                     <div className="bg-amber-100/40 border border-amber-200 text-amber-900 rounded-xl p-3.5 flex items-center justify-between text-xs font-semibold">
                       <span className="flex items-center gap-1.5 text-slate-700">
-                        ⚠️ Bạn đã bỏ qua câu hỏi này.
+                        {lang === 'vi' ? '⚠️ Bạn đã bỏ qua câu hỏi này.' : '⚠️ You skipped this question.'}
                       </span>
                       <button
                         type="button"
@@ -165,7 +176,7 @@ export default function VocabularySection({
                         }}
                         className="bg-white border border-amber-300 text-indigo-900 hover:bg-indigo-50 px-3 py-1 rounded-lg font-bold shadow-sm transition-colors cursor-pointer text-[11px]"
                       >
-                        LÀM LẠI CÂU NÀY
+                        {lang === 'vi' ? 'LÀM LẠI CÂU NÀY' : 'RETRY THIS QUESTION'}
                       </button>
                     </div>
                   ) : (
@@ -203,7 +214,9 @@ export default function VocabularySection({
 
                   {/* Skip control and Note footer inside the question box */}
                   <div className="flex items-center justify-between mt-4 pt-2.5 border-t border-dashed border-slate-200 text-[11px] text-slate-400">
-                    <span className="font-medium italic">*(Bỏ qua nếu bạn không làm được)*</span>
+                    <span className="font-medium italic">
+                      {lang === 'vi' ? '*(Bỏ qua nếu bạn không làm được)*' : '*(Skip if you cannot answer)*'}
+                    </span>
                     {!isSkipped && (
                       <button
                         type="button"
@@ -214,7 +227,7 @@ export default function VocabularySection({
                         }}
                         className="text-slate-400 hover:text-amber-700 font-extrabold flex items-center gap-1 transition-colors cursor-pointer"
                       >
-                        BỎ QUA CÂU NÀY
+                        {lang === 'vi' ? 'BỎ QUA CÂU NÀY' : 'SKIP THIS QUESTION'}
                       </button>
                     )}
                   </div>
@@ -230,11 +243,11 @@ export default function VocabularySection({
               disabled={currentPage === 0}
               className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-extrabold transition-colors select-none cursor-pointer flex items-center gap-1.5"
             >
-              <ChevronLeft className="w-4 h-4" /> Trang trước
+              <ChevronLeft className="w-4 h-4" /> {lang === 'vi' ? 'Trang trước' : 'Previous page'}
             </button>
 
             <span className="text-xs text-slate-500 font-bold">
-              Trang {currentPage + 1} / {totalPages}
+              {lang === 'vi' ? `Trang ${currentPage + 1} / ${totalPages}` : `Page ${currentPage + 1} / ${totalPages}`}
             </span>
 
             <button
@@ -242,7 +255,7 @@ export default function VocabularySection({
               disabled={currentPage === totalPages - 1}
               className="px-5 py-2.5 bg-indigo-900 hover:bg-indigo-850 text-white disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-extrabold transition-colors select-none cursor-pointer flex items-center gap-1.5"
             >
-              Trang sau <ChevronRight className="w-4 h-4" />
+              {lang === 'vi' ? 'Trang sau' : 'Next page'} <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
@@ -251,17 +264,23 @@ export default function VocabularySection({
         {/* Right Side Info Box */}
         <div className="lg:col-span-4 bg-indigo-950 text-white rounded-2xl p-5 shadow-md border border-indigo-900 space-y-4">
           <h3 className="font-bold flex items-center gap-1.5 text-xs uppercase tracking-wider border-b border-indigo-900 pb-2.5 text-indigo-200">
-            <HelpCircle className="w-4 h-4" /> Hướng dẫn làm bài
+            <HelpCircle className="w-4 h-4" /> {lang === 'vi' ? 'Hướng dẫn làm bài' : 'Instructions'}
           </h3>
           <ul className="text-xs space-y-3 leading-relaxed text-indigo-100/95 list-disc list-inside font-medium">
             <li>
-              Các câu hỏi được nhóm <strong className="text-white">5 câu chung một lượt hiển thị</strong> trên màn hình để bạn dễ bao quát và so sánh.
+              {lang === 'vi' 
+                ? <>Các câu hỏi được nhóm <strong className="text-white">5 câu chung một lượt hiển thị</strong> trên màn hình để bạn dễ bao quát và so sánh.</>
+                : <>Questions are grouped <strong className="text-white">5 per page on the screen</strong> for easy reading and comparison.</>}
             </li>
             <li>
-              Bạn có thể dễ dàng dùng nút <strong className="text-white">Trang trước</strong> và <strong className="text-white">Trang sau</strong> để quay trở lại sửa đổi câu trả lời bất cứ lúc nào.
+              {lang === 'vi'
+                ? <>Bạn có thể dễ dàng dùng nút <strong className="text-white">Trang trước</strong> và <strong className="text-white">Trang sau</strong> để quay trở lại sửa đổi câu trả lời bất cứ lúc nào.</>
+                : <>You can easily use the <strong className="text-white">Previous page</strong> and <strong className="text-white">Next page</strong> buttons to return and modify answers at any time.</>}
             </li>
             <li>
-              Để di chuyển nhanh đến một câu hỏi bất kỳ, hãy nhấp chuột vào số câu hỏi tương ứng trong bảng <strong className="text-white">Question Navigator</strong> ở bên phải.
+              {lang === 'vi'
+                ? <>Để di chuyển nhanh đến một câu hỏi bất kỳ, hãy nhấp chuột vào số câu hỏi tương ứng trong bảng <strong className="text-white">Question Navigator</strong> ở bên phải.</>
+                : <>To quickly move to any question, click the corresponding question number in the <strong className="text-white">Question Navigator</strong> panel on the right.</>}
             </li>
           </ul>
         </div>

@@ -3425,7 +3425,9 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="bg-amber-400 text-indigo-950 font-black text-xs px-2.5 py-1 rounded-md">ADMIN</span>
-            <h1 className="text-lg font-bold tracking-tight">Placement Test Administration</h1>
+            <h1 className="text-lg font-bold tracking-tight">
+              {lang === 'vi' ? 'Quản trị Hệ thống Placement Test' : 'Placement Test Administration'}
+            </h1>
           </div>
           <div className="flex items-center gap-3">
             <LanguageToggle />
@@ -3433,13 +3435,13 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
               onClick={onBackToTest}
               className="text-xs bg-indigo-900 hover:bg-indigo-800 text-slate-200 font-bold py-2 px-4 rounded-lg border border-indigo-800 transition-colors cursor-pointer"
             >
-              Xem trang thi
+              {lang === 'vi' ? 'Xem trang thi' : 'View Test Page'}
             </button>
             <button
               onClick={handleLogout}
               className="text-xs bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors cursor-pointer"
             >
-              Đăng xuất
+              {lang === 'vi' ? 'Đăng xuất' : 'Logout'}
             </button>
           </div>
         </div>
@@ -3460,7 +3462,7 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
               }`}
             >
-              <FileText className="w-3.5 h-3.5" /> Kỳ thi ({exams.length})
+              <FileText className="w-3.5 h-3.5" /> {lang === 'vi' ? `Kỳ thi (${exams.length})` : `Exams (${exams.length})`}
             </button>
 
             <button
@@ -3474,7 +3476,7 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
               }`}
             >
-              <Users className="w-3.5 h-3.5" /> Thí sinh ({stats.total})
+              <Users className="w-3.5 h-3.5" /> {lang === 'vi' ? `Thí sinh (${stats.total})` : `Candidates (${stats.total})`}
             </button>
 
             <button
@@ -3488,7 +3490,7 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" /> Tài liệu ({materials.length})
+              <BookOpen className="w-3.5 h-3.5" /> {lang === 'vi' ? `Tài liệu (${materials.length})` : `Resources (${materials.length})`}
             </button>
 
             <button
@@ -3502,7 +3504,7 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
               }`}
             >
-              <Settings className="w-3.5 h-3.5" /> Setting
+              <Settings className="w-3.5 h-3.5" /> {lang === 'vi' ? 'Cài đặt' : 'Settings'}
             </button>
 
             <button
@@ -3516,7 +3518,7 @@ export default function AdminPanel({ onBackToTest }: AdminPanelProps) {
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
               }`}
             >
-              <Activity className="w-3.5 h-3.5" /> Nhật ký
+              <Activity className="w-3.5 h-3.5" /> {lang === 'vi' ? 'Nhật ký' : 'System Logs'}
             </button>
           </div>
           <p className="text-[10px] text-slate-400 font-mono self-end sm:self-auto">

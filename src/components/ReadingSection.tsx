@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookOpen, HelpCircle, CheckCircle } from 'lucide-react';
 import { READING_PASSAGE } from '../questions';
+import { languageService, Language } from '../services/languageService';
 
 interface ReadingSectionProps {
   answers: Record<string, string>;
@@ -24,6 +25,14 @@ export default function ReadingSection({
   setCurrentQuestionId,
   passage = READING_PASSAGE
 }: ReadingSectionProps) {
+  const [lang, setLang] = useState<Language>(languageService.getLanguage());
+
+  useEffect(() => {
+    return languageService.onChange((newLang) => {
+      setLang(newLang);
+    });
+  }, []);
+
   // Combine all reading questions
   const allReadingQuestions = [
     ...(passage.questionsPartA || []).map(q => ({ ...q, part: 'A' })),
@@ -56,7 +65,7 @@ export default function ReadingSection({
         <div className="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col h-[650px] overflow-hidden">
           <div className="border-b border-slate-100 pb-3 mb-4 shrink-0">
             <h3 className="font-extrabold text-indigo-950 text-sm flex items-center gap-1.5 uppercase">
-              <BookOpen className="w-4 h-4 text-indigo-900" /> Reading Passage
+              <BookOpen className="w-4 h-4 text-indigo-900" /> {lang === 'vi' ? 'Đoạn văn đọc' : 'Reading Passage'}
             </h3>
           </div>
           
@@ -74,10 +83,10 @@ export default function ReadingSection({
           
           <div className="border-b border-slate-100 pb-3 mb-4 shrink-0 flex items-center justify-between">
             <h3 className="font-extrabold text-indigo-950 text-sm flex items-center gap-1.5 uppercase">
-              <HelpCircle className="w-4 h-4 text-indigo-900" /> Questions List (Câu 1 - 6)
+              <HelpCircle className="w-4 h-4 text-indigo-900" /> {lang === 'vi' ? `Danh sách câu hỏi (Câu 1 - ${allReadingQuestions.length})` : `Questions List (Questions 1 - ${allReadingQuestions.length})`}
             </h3>
             <span className="text-xs font-mono bg-indigo-50 text-indigo-900 px-2 py-0.5 rounded-md font-bold">
-              Tất cả câu hỏi
+              {lang === 'vi' ? 'Tất cả câu hỏi' : 'All questions'}
             </span>
           </div>
 
@@ -116,7 +125,9 @@ export default function ReadingSection({
                   {/* Level details badge */}
                   <div className="mb-2.5">
                     <span className="text-[9px] font-black uppercase text-indigo-900/60 tracking-wider">
-                      {q.part === 'A' ? 'Phần A: Chọn đáp án đúng' : 'Phần B: True / False / Not Given'}
+                      {q.part === 'A' 
+                        ? (lang === 'vi' ? 'Phần A: Chọn đáp án đúng' : 'Part A: Choose the correct answer')
+                        : (lang === 'vi' ? 'Phần B: True / False / Not Given' : 'Part B: True / False / Not Given')}
                     </span>
                   </div>
 
@@ -124,7 +135,7 @@ export default function ReadingSection({
                   {isSkipped ? (
                     <div className="bg-amber-100/40 border border-amber-200 text-amber-900 rounded-xl p-3.5 flex items-center justify-between text-xs font-semibold">
                       <span className="flex items-center gap-1.5 text-slate-700">
-                        ⚠️ Bạn đã bỏ qua câu hỏi này.
+                        {lang === 'vi' ? '⚠️ Bạn đã bỏ qua câu hỏi này.' : '⚠️ You skipped this question.'}
                       </span>
                       <button
                         type="button"
@@ -134,16 +145,16 @@ export default function ReadingSection({
                         }}
                         className="bg-white border border-amber-300 text-indigo-900 hover:bg-indigo-50 px-3 py-1 rounded-lg font-bold shadow-sm transition-colors cursor-pointer text-[11px]"
                       >
-                        LÀM LẠI CÂU NÀY
+                        {lang === 'vi' ? 'LÀM LẠI CÂU NÀY' : 'RETRY THIS QUESTION'}
                       </button>
                     </div>
                   ) : (!q.options || q.options.length === 0) ? (
                     <div className="flex items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
-                      <span className="text-xs font-semibold text-slate-500">Đáp án:</span>
+                      <span className="text-xs font-semibold text-slate-500">{lang === 'vi' ? 'Đáp án:' : 'Answer:'}</span>
                       <input
                         type="text"
                         id={`input-blank-${q.id}`}
-                        placeholder="Nhập câu trả lời..."
+                        placeholder={lang === 'vi' ? 'Nhập câu trả lời...' : 'Enter your answer...'}
                         value={currentAnswer}
                         onChange={(e) => {
                           onAnswerChange(q.id, e.target.value);
@@ -193,7 +204,9 @@ export default function ReadingSection({
 
                   {/* Skip control and Note footer inside the question box */}
                   <div className="flex items-center justify-between mt-3.5 pt-2 border-t border-dashed border-slate-200 text-[11px] text-slate-400">
-                    <span className="font-medium italic">*(Bỏ qua nếu bạn không làm được)*</span>
+                    <span className="font-medium italic">
+                      {lang === 'vi' ? '*(Bỏ qua nếu bạn không làm được)*' : '*(Skip if you cannot answer)*'}
+                    </span>
                     {!isSkipped && (
                       <button
                         type="button"
@@ -204,7 +217,7 @@ export default function ReadingSection({
                         }}
                         className="text-slate-400 hover:text-amber-700 font-extrabold flex items-center gap-1 transition-colors cursor-pointer"
                       >
-                        BỎ QUA CÂU NÀY
+                        {lang === 'vi' ? 'BỎ QUA CÂU NÀY' : 'SKIP THIS QUESTION'}
                       </button>
                     )}
                   </div>
@@ -216,7 +229,9 @@ export default function ReadingSection({
           {/* Legend and help info in footer */}
           <div className="pt-3 border-t border-slate-100 shrink-0">
             <p className="text-[10px] text-slate-400 italic text-center font-medium">
-              Bạn có thể làm bài và tự do quay lại thay đổi câu trả lời bất cứ lúc nào trước khi nộp bài.
+              {lang === 'vi' 
+                ? 'Bạn có thể làm bài và tự do quay lại thay đổi câu trả lời bất cứ lúc nào trước khi nộp bài.' 
+                : 'You can work and freely go back to change answers anytime before submitting the exam.'}
             </p>
           </div>
 

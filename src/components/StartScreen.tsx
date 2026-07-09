@@ -185,14 +185,14 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                 {/* Always-visible Contact Card when closed */}
                 <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-red-100 dark:border-slate-800 text-left space-y-3 mt-4">
                   <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide border-b pb-1.5 border-slate-100 dark:border-slate-800">
-                    Thông tin liên hệ Giáo viên:
+                    {lang === 'vi' ? 'Thông tin liên hệ Giáo viên:' : 'Teacher Contact Information:'}
                   </div>
                   <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                    Giáo viên phụ trách: <span className="text-indigo-950 dark:text-white font-black text-sm">{settings.teacherName || 'Teacher Anna'}</span>
+                    {lang === 'vi' ? 'Giáo viên phụ trách:' : 'In-charge Teacher:'} <span className="text-indigo-950 dark:text-white font-black text-sm">{settings.teacherName || 'Teacher Anna'}</span>
                   </div>
                   {settings.teacherAddress && (
                     <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                      📍 <strong>Địa chỉ:</strong> {settings.teacherAddress}
+                      📍 <strong>{lang === 'vi' ? 'Địa chỉ:' : 'Address:'}</strong> {settings.teacherAddress}
                     </div>
                   )}
 
@@ -204,7 +204,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                         className="w-full flex items-center justify-center gap-1.5 p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 shadow-xs text-xs font-bold cursor-pointer"
                       >
                         <Phone className="w-3.5 h-3.5 text-indigo-900 dark:text-indigo-400" />
-                        <span>Gọi / SMS / Zalo</span>
+                        <span>{lang === 'vi' ? 'Call / SMS / Zalo' : 'Call / SMS / Zalo'}</span>
                       </button>
                       
                       {showPhoneOptions && (
@@ -213,13 +213,13 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                             href={`tel:${settings.teacherPhone || '0987.654.321'}`}
                             className="flex items-center gap-2 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer font-semibold"
                           >
-                            📞 Gọi Hotline trực tiếp
+                            📞 {lang === 'vi' ? 'Gọi Hotline trực tiếp' : 'Call Hotline Directly'}
                           </a>
                           <a
                             href={`sms:${settings.teacherPhone || '0987.654.321'}`}
                             className="flex items-center gap-2 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer font-semibold"
                           >
-                            💬 Gửi tin nhắn SMS
+                            💬 {lang === 'vi' ? 'Gửi tin nhắn SMS' : 'Send SMS Message'}
                           </a>
                           <a
                             href={`https://zalo.me/${(settings.teacherZalo || settings.teacherPhone || '0987.654.321').replace(/[^0-9]/g, '')}`}
@@ -227,7 +227,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer font-bold text-indigo-600 dark:text-indigo-400"
                           >
-                            💬 Mở Zalo trò chuyện
+                            💬 {lang === 'vi' ? 'Mở Zalo trò chuyện' : 'Chat on Zalo'}
                           </a>
                         </div>
                       )}
@@ -237,7 +237,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                       href={`mailto:${settings.teacherEmail || 'teacher@english.edu.vn'}`}
                       className="flex items-center justify-center gap-1.5 p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 shadow-xs text-xs font-bold"
                     >
-                      ✉️ Gửi Email hỗ trợ
+                      ✉️ {lang === 'vi' ? 'Gửi Email hỗ trợ' : 'Email Support'}
                     </a>
 
                     {settings.teacherFacebook && (
@@ -247,7 +247,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-1.5 p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 shadow-xs text-xs font-bold"
                       >
-                        🔵 Facebook Cá nhân
+                        🔵 {lang === 'vi' ? 'Facebook Cá nhân' : 'Personal Facebook'}
                       </a>
                     )}
 
@@ -258,7 +258,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-1.5 p-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 shadow-xs text-xs font-bold"
                       >
-                        🌐 Ghé thăm Website
+                        🌐 {lang === 'vi' ? 'Ghé thăm Website' : 'Visit Website'}
                       </a>
                     )}
                   </div>
@@ -294,16 +294,16 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                     id="teacher-contact-info"
                   >
                     <div className="text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-black border-b pb-1.5 border-indigo-100 dark:border-slate-700">
-                      Kênh liên hệ hỗ trợ trực tiếp từ Giáo viên
+                      {lang === 'vi' ? 'Kênh liên hệ hỗ trợ trực tiếp từ Giáo viên' : 'Direct Support Channels from Teacher'}
                     </div>
                     
                     <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                      Giáo viên phụ trách: <span className="text-indigo-950 dark:text-white font-black text-sm">{settings.teacherName || 'Teacher Anna'}</span>
+                      {lang === 'vi' ? 'Giáo viên phụ trách:' : 'In-charge Teacher:'} <span className="text-indigo-950 dark:text-white font-black text-sm">{settings.teacherName || 'Teacher Anna'}</span>
                     </div>
 
                     {settings.teacherAddress && (
                       <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                        📍 <strong>Địa chỉ:</strong> {settings.teacherAddress}
+                        📍 <strong>{lang === 'vi' ? 'Địa chỉ:' : 'Address:'}</strong> {settings.teacherAddress}
                       </div>
                     )}
 
@@ -315,7 +315,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                           className="w-full flex items-center justify-center gap-1.5 p-3 bg-white dark:bg-slate-700 border border-indigo-250 dark:border-slate-600 hover:bg-indigo-100/55 dark:hover:bg-slate-650 rounded-xl text-indigo-950 dark:text-slate-200 shadow-xs font-bold cursor-pointer"
                         >
                           <Phone className="w-4 h-4 text-indigo-900 dark:text-indigo-400" /> 
-                          <span>Gọi / Nhắn tin / Zalo</span>
+                          <span>{lang === 'vi' ? 'Gọi / Nhắn tin / Zalo' : 'Call / Message / Zalo'}</span>
                         </button>
                         
                         {showPhoneOptions && (
@@ -324,13 +324,13 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                               href={`tel:${settings.teacherPhone || '0987.654.321'}`}
                               className="flex items-center gap-2 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer font-semibold"
                             >
-                              📞 Gọi Hotline trực tiếp
+                              📞 {lang === 'vi' ? 'Gọi Hotline trực tiếp' : 'Call Hotline Directly'}
                             </a>
                             <a
                               href={`sms:${settings.teacherPhone || '0987.654.321'}`}
                               className="flex items-center gap-2 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer font-semibold"
                             >
-                              💬 Gửi tin nhắn SMS
+                              💬 {lang === 'vi' ? 'Gửi tin nhắn SMS' : 'Send SMS Message'}
                             </a>
                             <a
                               href={`https://zalo.me/${(settings.teacherZalo || settings.teacherPhone || '0987.654.321').replace(/[^0-9]/g, '')}`}
@@ -338,7 +338,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 p-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer font-bold text-indigo-600 dark:text-indigo-400"
                             >
-                              💬 Mở Zalo trò chuyện
+                              💬 {lang === 'vi' ? 'Mở Zalo trò chuyện' : 'Chat on Zalo'}
                             </a>
                           </div>
                         )}
@@ -348,7 +348,7 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                         href={`mailto:${settings.teacherEmail || 'teacher@english.edu.vn'}`}
                         className="flex items-center justify-center gap-1.5 p-3 bg-white dark:bg-slate-700 border border-indigo-200 dark:border-slate-600 hover:bg-indigo-100/55 dark:hover:bg-slate-650 rounded-xl text-indigo-950 dark:text-slate-200 shadow-xs cursor-pointer font-bold"
                       >
-                        ✉️ Gửi Email
+                        ✉️ {lang === 'vi' ? 'Gửi Email' : 'Email'}
                       </a>
 
                       {settings.teacherFacebook && (
@@ -375,7 +375,9 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
                     </div>
                     
                     <p className="text-[10px] font-normal text-slate-400 dark:text-slate-500 mt-2 text-center leading-normal">
-                      (Click chọn kênh liên hệ nếu bạn gặp sự cố kỹ thuật hoặc lỗi đường truyền audio)
+                      {lang === 'vi' 
+                        ? '(Click chọn kênh liên hệ nếu bạn gặp sự cố kỹ thuật hoặc lỗi đường truyền audio)' 
+                        : '(Click support channels if you encounter technical issues or audio loading problems)'}
                     </p>
                   </motion.div>
                 )}
@@ -510,13 +512,15 @@ export default function StartScreen({ onRegister, loading, onAdminClick, setting
         <div className="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
           <div>© 2026 Professional English Placement Test System. All rights reserved.</div>
           <div className="flex gap-4">
-            <a href="#welcome-card" onClick={() => setShowTeacherContact(true)} className="hover:text-white transition-colors">Trợ giúp</a>
+            <a href="#welcome-card" onClick={() => setShowTeacherContact(true)} className="hover:text-white transition-colors">
+              {lang === 'vi' ? 'Trợ giúp' : 'Help'}
+            </a>
             <span className="text-indigo-800">|</span>
             <button
               onClick={onAdminClick}
               className="hover:text-white transition-colors cursor-pointer"
             >
-              Dành cho Giáo viên
+              {lang === 'vi' ? 'Dành cho Giáo viên' : 'Teacher Portal'}
             </button>
             <span className="text-indigo-800">|</span>
             <span className="font-mono text-xs">Version 1.0 (IELTS standard)</span>

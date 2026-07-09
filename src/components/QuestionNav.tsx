@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { languageService, Language } from '../services/languageService';
 
 interface QuestionNavProps {
   questions: { id: string; label: string }[];
@@ -15,6 +16,14 @@ export default function QuestionNav({
   answers,
   skippedQuestions
 }: QuestionNavProps) {
+  const [lang, setLang] = useState<Language>(languageService.getLanguage());
+
+  useEffect(() => {
+    return languageService.onChange((newLang) => {
+      setLang(newLang);
+    });
+  }, []);
+
   const getStatusColorClass = (id: string) => {
     const isAnswered = !!answers[id] && answers[id].trim() !== '';
     const isSkipped = !!skippedQuestions[id];
@@ -32,10 +41,12 @@ export default function QuestionNav({
     <div id="question-navigator-card" className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col">
       <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-          Question Navigator
+          {lang === 'vi' ? 'Bảng điều hướng' : 'Question Navigator'}
         </h3>
         <span className="text-xs font-mono text-slate-500 bg-slate-50 px-2.5 py-0.5 rounded-md border border-slate-200 font-semibold">
-          {Object.keys(answers).length} / {questions.length} Done
+          {lang === 'vi' 
+            ? `Đã làm: ${Object.keys(answers).length} / ${questions.length}` 
+            : `${Object.keys(answers).length} / ${questions.length} Done`}
         </span>
       </div>
 
@@ -64,15 +75,17 @@ export default function QuestionNav({
       <div className="mt-6 space-y-2 border-t border-slate-100 pt-4 text-xs font-medium text-slate-600">
         <div className="flex items-center">
           <div className="w-3.5 h-3.5 rounded bg-green-500 mr-2 shrink-0"></div>
-          <span>Completed ({Object.keys(answers).length})</span>
+          <span>
+            {lang === 'vi' ? `Hoàn thành (${Object.keys(answers).length})` : `Completed (${Object.keys(answers).length})`}
+          </span>
         </div>
         <div className="flex items-center">
           <div className="w-3.5 h-3.5 rounded bg-amber-100 border border-amber-200 mr-2 shrink-0"></div>
-          <span>Skipped</span>
+          <span>{lang === 'vi' ? 'Đã bỏ qua' : 'Skipped'}</span>
         </div>
         <div className="flex items-center">
           <div className="w-3.5 h-3.5 rounded bg-slate-100 mr-2 shrink-0"></div>
-          <span>Not Started</span>
+          <span>{lang === 'vi' ? 'Chưa bắt đầu' : 'Not Started'}</span>
         </div>
       </div>
     </div>

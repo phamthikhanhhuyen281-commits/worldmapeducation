@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, ChevronLeft, ChevronRight, HelpCircle, CheckCircle } from 'lucide-react';
 import { GRAMMAR_QUESTIONS } from '../questions';
+import { languageService, Language } from '../services/languageService';
 
 interface GrammarSectionProps {
   answers: Record<string, string>;
@@ -19,6 +20,14 @@ export default function GrammarSection({
   setCurrentQuestionId,
   questions = GRAMMAR_QUESTIONS
 }: GrammarSectionProps) {
+  const [lang, setLang] = useState<Language>(languageService.getLanguage());
+
+  useEffect(() => {
+    return languageService.onChange((newLang) => {
+      setLang(newLang);
+    });
+  }, []);
+
   const [currentPage, setCurrentPage] = useState(0);
   const QUESTIONS_PER_PAGE = 5;
   const totalPages = Math.ceil(questions.length / QUESTIONS_PER_PAGE);
@@ -74,7 +83,9 @@ export default function GrammarSection({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-indigo-900" />
-              <h2 className="text-base font-black text-slate-800 uppercase">SECTION 2: GRAMMAR (NGỮ PHÁP)</h2>
+              <h2 className="text-base font-black text-slate-800 uppercase">
+                {lang === 'vi' ? 'SECTION 2: GRAMMAR (NGỮ PHÁP)' : 'SECTION 2: GRAMMAR'}
+              </h2>
             </div>
             
             {/* Page indicators */}
@@ -135,7 +146,7 @@ export default function GrammarSection({
                   {isSkipped ? (
                     <div className="bg-amber-100/40 border border-amber-200 text-amber-900 rounded-xl p-3.5 flex items-center justify-between text-xs font-semibold">
                       <span className="flex items-center gap-1.5 text-slate-700">
-                        ⚠️ Bạn đã bỏ qua câu hỏi này.
+                        {lang === 'vi' ? '⚠️ Bạn đã bỏ qua câu hỏi này.' : '⚠️ You skipped this question.'}
                       </span>
                       <button
                         type="button"
@@ -145,7 +156,7 @@ export default function GrammarSection({
                         }}
                         className="bg-white border border-amber-300 text-indigo-900 hover:bg-indigo-50 px-3 py-1 rounded-lg font-bold shadow-sm transition-colors cursor-pointer text-[11px]"
                       >
-                        LÀM LẠI CÂU NÀY
+                        {lang === 'vi' ? 'LÀM LẠI CÂU NÀY' : 'RETRY THIS QUESTION'}
                       </button>
                     </div>
                   ) : q.type === 'mcq' ? (
@@ -182,12 +193,12 @@ export default function GrammarSection({
                   ) : (
                     <div className="pt-1 max-w-sm" onClick={(e) => e.stopPropagation()}>
                       <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">
-                        Nhập câu trả lời (Viết đáp án trực tiếp):
+                        {lang === 'vi' ? 'Nhập câu trả lời (Viết đáp án trực tiếp):' : 'Enter your answer (write directly):'}
                       </label>
                       <input
                         id={`input-blank-${q.id}`}
                         type="text"
-                        placeholder="Nhập đáp án..."
+                        placeholder={lang === 'vi' ? 'Nhập đáp án...' : 'Enter answer...'}
                         value={currentAnswer}
                         onChange={(e) => onAnswerChange(q.id, e.target.value)}
                         onFocus={() => setCurrentQuestionId(q.id)}
@@ -198,7 +209,9 @@ export default function GrammarSection({
 
                   {/* Skip control and Note footer inside the question box */}
                   <div className="flex items-center justify-between mt-4 pt-2.5 border-t border-dashed border-slate-200 text-[11px] text-slate-400">
-                    <span className="font-medium italic">*(Bỏ qua nếu bạn không làm được)*</span>
+                    <span className="font-medium italic">
+                      {lang === 'vi' ? '*(Bỏ qua nếu bạn không làm được)*' : '*(Skip if you cannot answer)*'}
+                    </span>
                     {!isSkipped && (
                       <button
                         type="button"
@@ -209,7 +222,7 @@ export default function GrammarSection({
                         }}
                         className="text-slate-400 hover:text-amber-700 font-extrabold flex items-center gap-1 transition-colors cursor-pointer"
                       >
-                        BỎ QUA CÂU NÀY
+                        {lang === 'vi' ? 'BỎ QUA CÂU NÀY' : 'SKIP THIS QUESTION'}
                       </button>
                     )}
                   </div>
@@ -225,11 +238,11 @@ export default function GrammarSection({
               disabled={currentPage === 0}
               className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-extrabold transition-colors select-none cursor-pointer flex items-center gap-1.5"
             >
-              <ChevronLeft className="w-4 h-4" /> Trang trước
+              <ChevronLeft className="w-4 h-4" /> {lang === 'vi' ? 'Trang trước' : 'Previous page'}
             </button>
 
             <span className="text-xs text-slate-500 font-bold">
-              Trang {currentPage + 1} / {totalPages}
+              {lang === 'vi' ? `Trang ${currentPage + 1} / ${totalPages}` : `Page ${currentPage + 1} / ${totalPages}`}
             </span>
 
             <button
@@ -237,7 +250,7 @@ export default function GrammarSection({
               disabled={currentPage === totalPages - 1}
               className="px-5 py-2.5 bg-indigo-900 hover:bg-indigo-850 text-white disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-xs font-extrabold transition-colors select-none cursor-pointer flex items-center gap-1.5"
             >
-              Trang sau <ChevronRight className="w-4 h-4" />
+              {lang === 'vi' ? 'Trang sau' : 'Next page'} <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
@@ -246,17 +259,23 @@ export default function GrammarSection({
         {/* Right Side Info Box */}
         <div className="lg:col-span-4 bg-indigo-950 text-white rounded-2xl p-5 shadow-md border border-indigo-900 space-y-4">
           <h3 className="font-bold flex items-center gap-1.5 text-xs uppercase tracking-wider border-b border-indigo-900 pb-2.5 text-indigo-200">
-            <HelpCircle className="w-4 h-4" /> Hướng dẫn làm bài
+            <HelpCircle className="w-4 h-4" /> {lang === 'vi' ? 'Hướng dẫn làm bài' : 'Instructions'}
           </h3>
           <ul className="text-xs space-y-3 leading-relaxed text-indigo-100/95 list-disc list-inside font-medium">
             <li>
-              Các câu hỏi được nhóm <strong className="text-white">5 câu chung một lượt hiển thị</strong> trên màn hình để bạn dễ bao quát và so sánh.
+              {lang === 'vi' 
+                ? <>Các câu hỏi được nhóm <strong className="text-white">5 câu chung một lượt hiển thị</strong> trên màn hình để bạn dễ bao quát và so sánh.</>
+                : <>Questions are grouped <strong className="text-white">5 per page on the screen</strong> for easy reading and comparison.</>}
             </li>
             <li>
-              Bạn có thể dễ dàng dùng nút <strong className="text-white">Trang trước</strong> và <strong className="text-white">Trang sau</strong> để quay trở lại sửa đổi câu trả lời bất cứ lúc nào.
+              {lang === 'vi'
+                ? <>Bạn có thể dễ dàng dùng nút <strong className="text-white">Trang trước</strong> và <strong className="text-white">Trang sau</strong> để quay trở lại sửa đổi câu trả lời bất cứ lúc nào.</>
+                : <>You can easily use the <strong className="text-white">Previous page</strong> and <strong className="text-white">Next page</strong> buttons to return and modify answers at any time.</>}
             </li>
             <li>
-              Để di chuyển nhanh đến một câu hỏi bất kỳ, hãy nhấp chuột vào số câu hỏi tương ứng trong bảng <strong className="text-white">Question Navigator</strong> ở bên phải.
+              {lang === 'vi'
+                ? <>Để di chuyển nhanh đến một câu hỏi bất kỳ, hãy nhấp chuột vào số câu hỏi tương ứng trong bảng <strong className="text-white">Question Navigator</strong> ở bên phải.</>
+                : <>To quickly move to any question, click the corresponding question number in the <strong className="text-white">Question Navigator</strong> panel on the right.</>}
             </li>
           </ul>
         </div>

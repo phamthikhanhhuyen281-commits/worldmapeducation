@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Play, Volume2, Headphones, AlertTriangle, HelpCircle } from 'lucide-react';
 import { LISTENING_PART_1, LISTENING_PART_2 } from '../questions';
+import { languageService, Language } from '../services/languageService';
 
 interface ListeningSectionProps {
   answers: Record<string, string>;
@@ -27,6 +28,14 @@ export default function ListeningSection({
   audio2Url,
   isCustom = false
 }: ListeningSectionProps) {
+  const [lang, setLang] = useState<Language>(languageService.getLanguage());
+
+  useEffect(() => {
+    return languageService.onChange((newLang) => {
+      setLang(newLang);
+    });
+  }, []);
+
   const getProxiedUrl = (url?: string) => {
     if (!url || url.trim() === '') return undefined;
     return url;
@@ -80,7 +89,7 @@ export default function ListeningSection({
           
           {isSkipped ? (
             <span className="flex items-center gap-1 text-[11px] font-bold text-amber-800 leading-none">
-              <span>Đã bỏ qua</span>
+              <span>{lang === 'vi' ? 'Đã bỏ qua' : 'Skipped'}</span>
               <button
                 type="button"
                 onClick={(e) => {
@@ -89,7 +98,7 @@ export default function ListeningSection({
                 }}
                 className="text-[10px] text-indigo-900 hover:text-indigo-700 underline font-black uppercase cursor-pointer px-1 py-0.5"
               >
-                Làm lại
+                {lang === 'vi' ? 'Làm lại' : 'Retry'}
               </button>
             </span>
           ) : (
@@ -113,15 +122,15 @@ export default function ListeningSection({
                   onAnswerChange(qId, '__SKIPPED__');
                 }}
                 className="text-[9px] text-slate-400 hover:text-amber-700 hover:bg-amber-50 px-1 py-0.5 rounded transition-all font-bold cursor-pointer uppercase leading-none border border-slate-200"
-                title="Bỏ qua câu này"
+                title={lang === 'vi' ? 'Bỏ qua câu này' : 'Skip this question'}
               >
-                Bỏ qua
+                {lang === 'vi' ? 'Bỏ qua' : 'Skip'}
               </button>
             </span>
           )}
         </span>
         <span className="text-[8px] text-slate-400 leading-none px-1 mt-0.5 select-none font-medium text-center">
-          Bỏ qua nếu không làm được
+          {lang === 'vi' ? 'Bỏ qua nếu không làm được' : 'Skip if you cannot answer'}
         </span>
       </span>
     );
@@ -147,7 +156,7 @@ export default function ListeningSection({
 
         {isSkipped ? (
           <span className="inline-flex items-center gap-1.5 bg-amber-50/80 px-2 py-1 rounded border border-amber-200 text-xs font-bold text-amber-800 shadow-sm">
-            <span>Đã bỏ qua</span>
+            <span>{lang === 'vi' ? 'Đã bỏ qua' : 'Skipped'}</span>
             <button
               type="button"
               onClick={(e) => {
@@ -156,7 +165,7 @@ export default function ListeningSection({
               }}
               className="text-[10px] text-indigo-600 hover:text-indigo-800 underline font-black uppercase cursor-pointer"
             >
-              Làm lại
+              {lang === 'vi' ? 'Làm lại' : 'Retry'}
             </button>
           </span>
         ) : (
@@ -182,9 +191,9 @@ export default function ListeningSection({
                 onAnswerChange(qId, '__SKIPPED__');
               }}
               className="text-[9px] text-slate-400 hover:text-amber-700 hover:bg-amber-50 px-1 py-0.5 rounded transition-all font-bold cursor-pointer uppercase border border-slate-200"
-              title="Bỏ qua câu này"
+              title={lang === 'vi' ? 'Bỏ qua câu này' : 'Skip this question'}
             >
-              Bỏ qua
+              {lang === 'vi' ? 'Bỏ qua' : 'Skip'}
             </button>
           </span>
         )}
@@ -307,7 +316,10 @@ export default function ListeningSection({
       <div className="bg-red-55 text-red-900 border-l-4 border-red-600 p-4 rounded-r-xl flex items-start gap-3 shadow-sm">
         <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
         <p className="text-red-950 text-xs font-semibold leading-relaxed">
-          <strong className="uppercase">CHÚ Ý QUAN TRỌNG:</strong> Thí sinh <strong className="underline">CHỈ ĐƯỢC NGHE 1 LẦN DUY NHẤT</strong>. Khi đã nhấn Play hoặc audio đã bắt đầu chạy, bạn sẽ không thể tua lại, không thể Pause và không thể nghe lại dù có reload hay đăng nhập lại. Vui lòng kiểm tra kỹ thiết bị âm thanh trước khi nhấn phát.
+          <strong className="uppercase">{lang === 'vi' ? 'CHÚ Ý QUAN TRỌNG:' : 'IMPORTANT NOTICE:'}</strong>{' '}
+          {lang === 'vi' 
+            ? 'Thí sinh CHỈ ĐƯỢC NGHE 1 LẦN DUY NHẤT. Khi đã nhấn Play hoặc audio đã bắt đầu chạy, bạn sẽ không thể tua lại, không thể Pause và không thể nghe lại dù có reload hay đăng nhập lại. Vui lòng kiểm tra kỹ thiết bị âm thanh trước khi nhấn phát.' 
+            : 'Candidates can only listen ONCE. Once Play is clicked or the audio starts, you cannot rewind, pause, or listen again even if you reload or log in again. Please verify your audio equipment carefully before playing.'}
         </p>
       </div>
 
@@ -324,12 +336,14 @@ export default function ListeningSection({
                   <Headphones className="w-5 h-5 text-indigo-900" />
                   <h3 className="text-base font-black text-slate-800 uppercase">
                     {isCustom 
-                      ? (hasPart2 ? `Phần 1: Trắc nghiệm MCQ (Câu 1 - ${questionsPart1.length})` : `Phần nghe: Trắc nghiệm MCQ (Câu 1 - ${questionsPart1.length})`)
-                      : "Bài 1: Lisa Checking into a Hotel (Câu 1 - 7)"}
+                      ? (hasPart2 
+                          ? (lang === 'vi' ? `Phần 1: Trắc nghiệm MCQ (Câu 1 - ${questionsPart1.length})` : `Part 1: MCQ Questions (Questions 1 - ${questionsPart1.length})`) 
+                          : (lang === 'vi' ? `Phần nghe: Trắc nghiệm MCQ (Câu 1 - ${questionsPart1.length})` : `Listening: MCQ Questions (Questions 1 - ${questionsPart1.length})`))
+                      : (lang === 'vi' ? "Bài 1: Hotel Check-in (Câu 1 - 7)" : "Part 1: Hotel Check-in (Questions 1 - 7)")}
                   </h3>
                 </div>
                 <span className="text-xs font-mono bg-indigo-50 text-indigo-900 px-2.5 py-1 rounded-md font-bold">
-                  Trắc nghiệm MCQ
+                  {lang === 'vi' ? 'Trắc nghiệm MCQ' : 'MCQ Questions'}
                 </span>
               </div>
 
@@ -341,8 +355,10 @@ export default function ListeningSection({
                       <Volume2 className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-slate-800 text-sm">Audio Clip 01</h4>
-                      <p className="text-[11px] text-slate-500 font-medium leading-none mt-1">Audio can only be played ONCE. Please listen carefully.</p>
+                      <h4 className="font-extrabold text-slate-800 text-sm">{lang === 'vi' ? 'Clip Âm Thanh 01' : 'Audio Clip 01'}</h4>
+                      <p className="text-[11px] text-slate-500 font-medium leading-none mt-1">
+                        {lang === 'vi' ? 'Chỉ được phát 1 lần duy nhất. Hãy tập trung nghe.' : 'Can only be played ONCE. Please listen carefully.'}
+                      </p>
                     </div>
                   </div>
 
@@ -370,17 +386,16 @@ export default function ListeningSection({
                         : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
                     }`}
                   >
-                    {!finalAudio1Url && <>CHƯA CẤU HÌNH AUDIO (NO AUDIO)</>}
-                    {finalAudio1Url && audio1State === 'idle' && <><Play className="w-3.5 h-3.5 fill-current" /> PLAY AUDIO 1</>}
-                    {finalAudio1Url && audio1State === 'playing' && <><Volume2 className="w-3.5 h-3.5 animate-bounce" /> LISTENING...</>}
-                    {finalAudio1Url && audio1State === 'ended' && <>AUDIO PLAYED (BLOCKED)</>}
+                    {!finalAudio1Url && <>{lang === 'vi' ? 'CHƯA CẤU HÌNH AUDIO (NO AUDIO)' : 'NO AUDIO CONFIGURED'}</>}
+                    {finalAudio1Url && audio1State === 'idle' && <><Play className="w-3.5 h-3.5 fill-current" /> {lang === 'vi' ? 'PHÁT AUDIO' : 'PLAY AUDIO'}</>}
+                    {finalAudio1Url && audio1State === 'playing' && <><Volume2 className="w-3.5 h-3.5 animate-bounce" /> {lang === 'vi' ? 'ĐANG NGHE...' : 'LISTENING...'}</>}
+                    {finalAudio1Url && audio1State === 'ended' && <>{lang === 'vi' ? 'AUDIO ĐÃ PHÁT (ĐÃ KHÓA)' : 'AUDIO PLAYED (BLOCKED)'}</>}
                   </button>
                 </div>
 
                 {!finalAudio1Url && (
                   <div className="mt-3.5 p-3 rounded-xl bg-rose-50/70 border border-rose-150 text-[11px] text-rose-800 leading-relaxed font-medium">
-                    ⚠️ <strong>Lưu ý:</strong> Đề thi tự tạo này hiện chưa có liên kết âm thanh (Audio 1). 
-                    Nếu bạn là giáo viên/quản trị viên, vui lòng vào trang <strong>Admin Panel</strong>, chọn đề thi này và dán Link URL hoặc nhấn <strong>"Tải lên Audio 1"</strong> để học viên có thể làm bài nghe!
+                    ⚠️ <strong>{lang === 'vi' ? 'Lưu ý:' : 'Note:'}</strong> {lang === 'vi' ? 'Đề thi tự tạo này hiện chưa có liên kết âm thanh (Audio 1). Nếu bạn là giáo viên/quản trị viên, vui lòng vào trang Admin Panel, chọn đề thi này và dán Link URL hoặc nhấn "Tải lên Audio 1" để học viên có thể làm bài nghe!' : 'This custom exam currently has no audio link (Audio 1). If you are a teacher/administrator, please go to the Admin Panel, select this exam, and paste the URL or click "Upload Audio 1" for students to take the exam.'}
                   </div>
                 )}
 
@@ -440,7 +455,7 @@ export default function ListeningSection({
                         {isSkipped ? (
                           <div className="bg-amber-100/40 border border-amber-200 text-amber-900 rounded-xl p-3.5 flex items-center justify-between text-xs font-semibold">
                             <span className="flex items-center gap-1.5 text-slate-700">
-                              ⚠️ Bạn đã bỏ qua câu hỏi này.
+                              {lang === 'vi' ? '⚠️ Bạn đã bỏ qua câu hỏi này.' : '⚠️ You skipped this question.'}
                             </span>
                             <button
                               type="button"
@@ -449,16 +464,16 @@ export default function ListeningSection({
                               }}
                               className="bg-white border border-amber-300 text-indigo-900 hover:bg-indigo-50 px-3 py-1 rounded-lg font-bold shadow-sm transition-colors cursor-pointer text-[11px]"
                             >
-                              LÀM LẠI CÂU NÀY
+                              {lang === 'vi' ? 'LÀM LẠI CÂU NÀY' : 'RETRY THIS QUESTION'}
                             </button>
                           </div>
                         ) : (!q.options || q.options.length === 0) ? (
                           <div className="flex items-center gap-2 pt-1">
-                            <span className="text-xs font-semibold text-slate-500">Đáp án:</span>
+                            <span className="text-xs font-semibold text-slate-500">{lang === 'vi' ? 'Đáp án:' : 'Answer:'}</span>
                             <input
                               type="text"
                               id={`input-blank-${q.id}`}
-                              placeholder="Nhập câu trả lời..."
+                              placeholder={lang === 'vi' ? 'Nhập câu trả lời...' : 'Enter your answer...'}
                               value={currentAnswer}
                               onChange={(e) => {
                                 onAnswerChange(q.id, e.target.value);
@@ -501,7 +516,9 @@ export default function ListeningSection({
 
                         {/* Skip button and Note */}
                         <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-dashed border-slate-200 text-[11px] text-slate-400">
-                          <span className="font-medium italic">*(Bỏ qua nếu bạn không làm được)*</span>
+                          <span className="font-medium italic">
+                            {lang === 'vi' ? '*(Bỏ qua nếu bạn không làm được)*' : '*(Skip if you cannot answer)*'}
+                          </span>
                           {!isSkipped && (
                             <button
                               type="button"
@@ -511,7 +528,7 @@ export default function ListeningSection({
                               }}
                               className="text-slate-400 hover:text-amber-700 font-extrabold flex items-center gap-1 transition-colors cursor-pointer"
                             >
-                              BỎ QUA CÂU NÀY
+                              {lang === 'vi' ? 'BỎ QUA CÂU NÀY' : 'SKIP THIS QUESTION'}
                             </button>
                           )}
                         </div>
@@ -531,12 +548,14 @@ export default function ListeningSection({
                   <Headphones className="w-5 h-5 text-indigo-900" />
                   <h3 className="text-base font-black text-slate-800 uppercase">
                     {isCustom 
-                      ? (hasPart1 ? `Phần 2: Điền từ vào chỗ trống (Câu ${questionsPart1.length + 1} - ${questionsPart1.length + questionsPart2.length})` : `Phần nghe: Điền từ vào chỗ trống (Câu 1 - ${questionsPart2.length})`)
-                      : "Bài 2: Rented Properties (Câu 8 - 17)"}
+                      ? (hasPart1 
+                          ? (lang === 'vi' ? `Phần 2: Điền từ vào chỗ trống (Câu ${questionsPart1.length + 1} - ${questionsPart1.length + questionsPart2.length})` : `Part 2: Fill in the Blanks (Questions ${questionsPart1.length + 1} - ${questionsPart1.length + questionsPart2.length})`) 
+                          : (lang === 'vi' ? `Phần nghe: Điền từ vào chỗ trống (Câu 1 - ${questionsPart2.length})` : `Listening: Fill in the Blanks (Questions 1 - ${questionsPart2.length})`))
+                      : (lang === 'vi' ? "Bài 2: Rented Properties (Câu 8 - 17)" : "Part 2: Rented Properties (Questions 8 - 17)")}
                   </h3>
                 </div>
                 <span className="text-xs font-mono bg-amber-50 text-amber-800 px-2.5 py-1 rounded-md font-bold">
-                  Điền Từ Vào Chỗ Trống
+                  {lang === 'vi' ? 'Điền Từ Vào Chỗ Trống' : 'Fill in the blanks'}
                 </span>
               </div>
 
@@ -544,7 +563,9 @@ export default function ListeningSection({
               <div className="p-6 rounded-2xl border border-slate-800 bg-[#0f172a] shadow-xl text-slate-300 font-sans">
                 <div className="space-y-4">
                   <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                    Tập tin âm thanh này chỉ được phép nghe <strong className="text-red-500 font-black underline uppercase">01 LẦN DUY NHẤT</strong>. Bạn không thể Tạm dừng, Tua nhanh, Tua lại, Thay đổi tốc độ hoặc Tải về. Xin vui lòng tập trung lắng nghe.
+                    {lang === 'vi' 
+                      ? <>Tập tin âm thanh này chỉ được phép nghe <strong className="text-red-500 font-black underline uppercase">01 LẦN DUY NHẤT</strong>. Bạn không thể Tạm dừng, Tua nhanh, Tua lại, Thay đổi tốc độ hoặc Tải về. Xin vui lòng tập trung lắng nghe.</>
+                      : <>This audio file can only be listened to <strong className="text-red-500 font-black underline uppercase">ONCE</strong>. You cannot pause, fast-forward, rewind, change speed, or download. Please focus and listen carefully.</>}
                   </p>
 
                   <audio
@@ -571,17 +592,16 @@ export default function ListeningSection({
                         : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
                     }`}
                   >
-                    {!finalAudio2Url && <>CHƯA CẤU HÌNH AUDIO (NO AUDIO)</>}
-                    {finalAudio2Url && audio2State === 'idle' && <><Play className="w-3.5 h-3.5 fill-current" /> PHÁT AUDIO</>}
-                    {finalAudio2Url && audio2State === 'playing' && <><Volume2 className="w-3.5 h-3.5 animate-bounce" /> LISTENING...</>}
-                    {finalAudio2Url && audio2State === 'ended' && <>AUDIO PLAYED (BLOCKED)</>}
+                    {!finalAudio2Url && <>{lang === 'vi' ? 'CHƯA CẤU HÌNH AUDIO (NO AUDIO)' : 'NO AUDIO CONFIGURED'}</>}
+                    {finalAudio2Url && audio2State === 'idle' && <><Play className="w-3.5 h-3.5 fill-current" /> {lang === 'vi' ? 'PHÁT AUDIO' : 'PLAY AUDIO'}</>}
+                    {finalAudio2Url && audio2State === 'playing' && <><Volume2 className="w-3.5 h-3.5 animate-bounce" /> {lang === 'vi' ? 'ĐANG NGHE...' : 'LISTENING...'}</>}
+                    {finalAudio2Url && audio2State === 'ended' && <>{lang === 'vi' ? 'AUDIO ĐÃ PHÁT (ĐÃ KHÓA)' : 'AUDIO PLAYED (BLOCKED)'}</>}
                   </button>
                 </div>
 
                 {!finalAudio2Url && (
                   <div className="mt-3.5 p-3 rounded-xl bg-rose-950/20 border border-rose-900/40 text-[11px] text-rose-400 leading-relaxed font-medium">
-                    ⚠️ <strong>Lưu ý:</strong> Đề thi tự tạo này hiện chưa có liên kết âm thanh (Audio 2). 
-                    Nếu bạn là giáo viên/quản trị viên, vui lòng vào trang <strong>Admin Panel</strong>, chọn đề thi này và dán Link URL hoặc nhấn <strong>"Tải lên Audio 2"</strong> để học viên có thể làm bài nghe!
+                    ⚠️ <strong>{lang === 'vi' ? 'Lưu ý:' : 'Note:'}</strong> {lang === 'vi' ? 'Đề thi tự tạo này hiện chưa có liên kết âm thanh (Audio 2). Nếu bạn là giáo viên/quản trị viên, vui lòng vào trang Admin Panel, chọn đề thi này và dán Link URL hoặc nhấn "Tải lên Audio 2" để học viên có thể làm bài nghe!' : 'This custom exam currently has no audio link (Audio 2). If you are a teacher/administrator, please go to the Admin Panel, select this exam, and paste the URL or click "Upload Audio 2" for students to take the exam.'}
                   </div>
                 )}
 

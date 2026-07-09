@@ -4,6 +4,7 @@ import { SPEAKING_READ_ALOUD, SPEAKING_QUESTIONS } from '../questions';
 import { candidateService } from '../services/candidateService';
 import { storageService } from '../services/storageService';
 import { speakingService } from '../services/speakingService';
+import { languageService, Language } from '../services/languageService';
 
 interface SpeakingSectionProps {
   candidateId: string;
@@ -22,6 +23,14 @@ export default function SpeakingSection({
   speakingQuestions = SPEAKING_QUESTIONS,
   speakingReadAloud = SPEAKING_READ_ALOUD
 }: SpeakingSectionProps) {
+  const [lang, setLang] = useState<Language>(languageService.getLanguage());
+
+  useEffect(() => {
+    return languageService.onChange((newLang) => {
+      setLang(newLang);
+    });
+  }, []);
+
   const [permission, setPermission] = useState<boolean | null>(null);
   const [recordingState, setRecordingState] = useState<Record<string, 'idle' | 'recording' | 'saving' | 'done'>>({});
   const [recordingSeconds, setRecordingSeconds] = useState<Record<string, number>>({});
@@ -239,7 +248,15 @@ export default function SpeakingSection({
         <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded-xl flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
           <p className="text-sm font-medium text-red-800">
-            <strong>LỖI: Trình duyệt chưa cấp quyền truy cập Micro.</strong> Vui lòng nhấn vào biểu tượng ổ khóa 🔒 trên thanh địa chỉ của trình duyệt và cho phép (Allow) Microphone để làm bài thi Nói.
+            {lang === 'vi' ? (
+              <>
+                <strong>LỖI: Trình duyệt chưa cấp quyền truy cập Micro.</strong> Vui lòng nhấn vào biểu tượng ổ khóa 🔒 trên thanh địa chỉ của trình duyệt và cho phép (Allow) Microphone để làm bài thi Nói.
+              </>
+            ) : (
+              <>
+                <strong>ERROR: Browser has not granted Microphone access.</strong> Please click the lock icon 🔒 in the browser address bar and choose "Allow" for the Microphone to take the Speaking exam.
+              </>
+            )}
           </p>
         </div>
       )}
@@ -249,15 +266,25 @@ export default function SpeakingSection({
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-indigo-900" />
-            <h3 className="font-extrabold text-[#1e3a8a] text-base uppercase">SPEAKING BÀI 1: ĐỌC THÀNH TIẾNG ĐOẠN VĂN (B1)</h3>
+            <h3 className="font-extrabold text-[#1e3a8a] text-base uppercase">
+              {lang === 'vi' ? 'SPEAKING BÀI 1: ĐỌC THÀNH TIẾNG ĐOẠN VĂN (B1)' : 'SPEAKING PART 1: READ ALOUD (B1)'}
+            </h3>
           </div>
           <span className="text-xs font-mono font-bold bg-indigo-50 text-indigo-900 px-2.5 py-1 rounded-md">
-            Chỉ được ghi âm 1 lần
+            {lang === 'vi' ? 'Chỉ được ghi âm 1 lần' : 'One recording only'}
           </span>
         </div>
 
         <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
-          Đọc to và rõ ràng đoạn văn dưới đây vào microphone. Bạn chỉ có thể ghi âm <strong className="text-red-600 underline">1 lần duy nhất</strong> và không được sửa đổi hay ghi lại:
+          {lang === 'vi' ? (
+            <>
+              Đọc to và rõ ràng đoạn văn dưới đây vào microphone. Bạn chỉ có thể ghi âm <strong className="text-red-600 underline">1 lần duy nhất</strong> và không được sửa đổi hay ghi lại:
+            </>
+          ) : (
+            <>
+              Read the text aloud clearly and audibly into the microphone. You can only record <strong className="text-red-600 underline">ONCE</strong> and cannot edit or re-record:
+            </>
+          )}
         </p>
 
         {/* Reading Text Container */}
@@ -273,7 +300,7 @@ export default function SpeakingSection({
                 onClick={() => stopRecording('speaking_p1')}
                 className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
               >
-                <Square className="w-4 h-4 fill-current" /> Stop (Dừng & Lưu)
+                <Square className="w-4 h-4 fill-current" /> {lang === 'vi' ? 'Stop (Dừng & Lưu)' : 'Stop (Stop & Save)'}
               </button>
             ) : (
               <button
@@ -282,7 +309,9 @@ export default function SpeakingSection({
                 className="bg-indigo-900 hover:bg-indigo-850 text-white font-bold py-3 px-6 rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"
               >
                 <Mic className="w-4 h-4" /> 
-                {recordingState['speaking_p1'] === 'done' ? 'Locked (Đã khóa ghi âm)' : 'Start Recording (Bắt đầu nói)'}
+                {recordingState['speaking_p1'] === 'done' 
+                  ? (lang === 'vi' ? 'Locked (Đã khóa ghi âm)' : 'Locked (Recorded)') 
+                  : (lang === 'vi' ? 'Start Recording (Bắt đầu nói)' : 'Start Recording')}
               </button>
             )}
 
@@ -296,13 +325,13 @@ export default function SpeakingSection({
 
             {recordingState['speaking_p1'] === 'saving' && (
               <div className="flex items-center gap-2 text-indigo-900 font-semibold animate-bounce text-sm">
-                <RefreshCw className="w-4 h-4 animate-spin" /> Đang lưu ghi âm bài nói...
+                <RefreshCw className="w-4 h-4 animate-spin" /> {lang === 'vi' ? 'Đang lưu ghi âm bài nói...' : 'Saving voice recording...'}
               </div>
             )}
 
             {recordingState['speaking_p1'] === 'done' && (
               <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-xl text-xs font-extrabold">
-                <Check className="w-4 h-4" /> Đã ghi nhận & Khóa bài nói (Không được ghi âm lại)
+                <Check className="w-4 h-4" /> {lang === 'vi' ? 'Đã ghi nhận & Khóa bài nói (Không được ghi âm lại)' : 'Voice recorded & locked (Cannot re-record)'}
               </div>
             )}
           </div>
@@ -310,7 +339,9 @@ export default function SpeakingSection({
           {/* Reassurance text */}
           {recordingState['speaking_p1'] === 'done' && (
             <div className="text-xs text-slate-400 flex items-center gap-2 font-medium">
-              <span className="font-sans italic">Hệ thống AI đang chấm điểm phát âm của bạn.</span>
+              <span className="font-sans italic">
+                {lang === 'vi' ? 'Hệ thống AI đang chấm điểm phát âm của bạn.' : 'AI pronunciation evaluation is in progress.'}
+              </span>
             </div>
           )}
         </div>
@@ -321,15 +352,19 @@ export default function SpeakingSection({
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Volume2 className="w-5 h-5 text-indigo-900" />
-            <h3 className="font-extrabold text-[#1e3a8a] text-base uppercase">SPEAKING BÀI 2: TRẢ LỜI CÂU HỎI PHỎNG VẤN (B2)</h3>
+            <h3 className="font-extrabold text-[#1e3a8a] text-base uppercase">
+              {lang === 'vi' ? 'SPEAKING BÀI 2: TRẢ LỜI CÂU HỎI PHỎNG VẤN (B2)' : 'SPEAKING PART 2: INTERVIEW QUESTIONS (B2)'}
+            </h3>
           </div>
           <span className="text-xs font-mono font-bold bg-amber-50 text-amber-850 px-2.5 py-1 rounded-md">
-            Nghe câu hỏi + Ghi âm 1 lần duy nhất
+            {lang === 'vi' ? 'Nghe câu hỏi + Ghi âm 1 lần duy nhất' : 'Listen + One recording only'}
           </span>
         </div>
 
         <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
-          Bấm nút AI để nghe câu hỏi đọc to. Sau đó bấm nút Ghi âm để trả lời câu hỏi (<span className="text-red-600 font-bold">Chỉ được ghi âm 1 lần duy nhất</span>):
+          {lang === 'vi' 
+            ? 'Bấm nút AI để nghe câu hỏi đọc to. Sau đó bấm nút Ghi âm để trả lời câu hỏi (Chỉ được ghi âm 1 lần duy nhất):'
+            : 'Click the AI button to hear the question. Then click Record to answer (Only one recording allowed):'}
         </p>
 
         {/* Questions Cards Grid */}
@@ -343,16 +378,18 @@ export default function SpeakingSection({
             return (
               <div key={q.id} className="border border-slate-200 rounded-2xl p-5 bg-slate-50/50 flex flex-col justify-between space-y-5">
                 <div className="space-y-3">
-                  <span className="text-xs font-extrabold text-indigo-900 tracking-wider block">CÂU HỎI {idx + 1}</span>
+                  <span className="text-xs font-extrabold text-indigo-900 tracking-wider block">
+                    {lang === 'vi' ? `CÂU HỎI ${idx + 1}` : `QUESTION ${idx + 1}`}
+                  </span>
                   
                   {/* AI Read Question Aloud Button */}
                   <button
                     onClick={() => handleAISpeak(q.text)}
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 text-indigo-950 font-bold rounded-xl text-xs border border-indigo-200 transition-all select-none cursor-pointer"
-                    title="Nhấp vào đây để AI đọc to câu hỏi này"
+                    title={lang === 'vi' ? 'Nhấp vào đây để AI đọc to câu hỏi này' : 'Click here to have AI read this question aloud'}
                   >
                     <Volume2 className="w-4 h-4 text-indigo-900 animate-pulse" />
-                    <span>Nhấp vào đây để nghe câu hỏi</span>
+                    <span>{lang === 'vi' ? 'Nhấp vào đây để nghe câu hỏi' : 'Click here to listen'}</span>
                   </button>
 
                   <p className="text-sm font-extrabold text-slate-800 leading-relaxed font-sans italic pt-1 text-center">
@@ -368,7 +405,7 @@ export default function SpeakingSection({
                         onClick={() => stopRecording(id)}
                         className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow transition-all cursor-pointer"
                       >
-                        <Square className="w-3.5 h-3.5 fill-current" /> Stop (Dừng & Lưu)
+                        <Square className="w-3.5 h-3.5 fill-current" /> {lang === 'vi' ? 'Stop (Dừng & Lưu)' : 'Stop (Stop & Save)'}
                       </button>
                     ) : (
                       <button
@@ -377,7 +414,9 @@ export default function SpeakingSection({
                         className="w-full bg-indigo-900 hover:bg-indigo-850 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow transition-all cursor-pointer"
                       >
                         <Mic className="w-3.5 h-3.5" /> 
-                        {isCompleted ? 'Locked (Đã khóa)' : 'Ghi âm'}
+                        {isCompleted 
+                          ? (lang === 'vi' ? 'Locked (Đã khóa)' : 'Locked') 
+                          : (lang === 'vi' ? 'Ghi âm' : 'Record')}
                       </button>
                     )}
                   </div>
@@ -391,13 +430,13 @@ export default function SpeakingSection({
 
                   {state === 'saving' && (
                     <span className="text-indigo-900 font-extrabold text-xs flex items-center justify-center gap-1">
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Saving audio file...
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> {lang === 'vi' ? 'Đang lưu file âm thanh...' : 'Saving audio file...'}
                     </span>
                   )}
 
                   {isCompleted && (
                     <span className="flex items-center justify-center gap-1 bg-green-50 border border-green-200 text-green-700 py-1.5 rounded-lg text-xs font-black">
-                      <Check className="w-3.5 h-3.5" /> Đã lưu ✓ (Không thể ghi lại)
+                      <Check className="w-3.5 h-3.5" /> {lang === 'vi' ? 'Đã lưu ✓ (Không thể ghi lại)' : 'Saved ✓ (Locked)'}
                     </span>
                   )}
                 </div>
